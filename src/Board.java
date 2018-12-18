@@ -16,9 +16,6 @@ import javax.swing.*;
 public class Board extends Applet implements KeyListener {
 
 	
-//	Board b = new Board() {
-//		
-//	};
 	
 	private boolean running = true;
 	private final static int WIDTH = 600;
@@ -30,13 +27,11 @@ public class Board extends Applet implements KeyListener {
 	private int pixelHeight = HEIGHT / numH;
 
 	static int M[][] = new int[numH][numW];
+	
+	
 
 	@Override
 	public void init() {
-//		M = new int[numH][numW];
-//		this.setBackground(Color.BLACK);
-		// Board b = new Board();
-		// b.run();
 	}
 
 	@Override
@@ -107,12 +102,6 @@ public class Board extends Applet implements KeyListener {
 		if (i == 39) {
 			i--;
 		}
-//		for (int i = 0; i < numH; i++) {
-//
-//			M[i][1] = 1;
-//			M[i][10] = 1;
-//
-//		}
 	}
 
 	public void drawPixel(int x, int y) {
@@ -120,19 +109,19 @@ public class Board extends Applet implements KeyListener {
 	}
 
 	@Override
-	public void keyPressed(KeyEvent arg0) {
+	public void keyPressed(KeyEvent e) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void keyReleased(KeyEvent arg0) {
+	public void keyReleased(KeyEvent e) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void keyTyped(KeyEvent arg0) {
+	public void keyTyped(KeyEvent e) {
 		// TODO Auto-generated method stub
 		
 	}

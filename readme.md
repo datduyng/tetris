@@ -5,6 +5,6 @@
 
 Why implementing Tetris?
 - Start simple.
-- Good interview practice.
+- Good interview practice.:D
 - If one understand the bare bone of an classical game theory algorithm, he or she can manipulate and build upon the game
 
