@@ -2,20 +2,21 @@ import java.applet.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.security.InvalidKeyException;
 import java.util.*;
 
 /**
  * 
  * @author Huy Vuong and Dat Nguyen Version of Date: 12/18/18 Base on :
- *         http://www.edu4java.com/en/game/game2.html
- *fix flickering: http://www.dmc.fmph.uniba.sk/public_html/doc/Java/ch10.htm
+ *         http://www.edu4java.com/en/game/game2.html fix flickering:
+ *         http://www.dmc.fmph.uniba.sk/public_html/doc/Java/ch10.htm
  */
 
 // for keyboard input
-public class Board extends Applet implements KeyListener,Runnable {
+public class Board extends Applet implements KeyListener, Runnable {
 
 	static ArrayList<int[][]> shapes = new ArrayList<int[][]>(7);
-	static ArrayList<int[]> coordinate  = new ArrayList<int[]>(); //0: x. 1: y
+	ArrayList<int[]> coordinate = new ArrayList<int[]>(); // 0: x. 1: y
 
 	private boolean running = true;
 	private final static int WIDTH = 600;
@@ -31,6 +32,7 @@ public class Board extends Applet implements KeyListener,Runnable {
 	private int dx = 0;
 	private int dy = 1;
 	private int idx_currShape;
+	LinkedHashMap<Integer, ArrayList<Integer>> setToDraw = new LinkedHashMap<Integer, ArrayList<Integer>>();
 
 	public void initShape() {
 		int[][] square = new int[][] { { 1, 1 }, { 1, 1 } };
@@ -45,20 +47,18 @@ public class Board extends Applet implements KeyListener,Runnable {
 		for (int y = 0; y < currShape.length; y++) {
 			for (int x = 0; x < currShape[0].length; x++) {
 				// Set the offset according to board size
-				int [] tmp = new int [] {x + 14, y};
+				int[] tmp = new int[] { x + 14, y };
 				coordinate.add(tmp);
 			}
 		}
 	}
-	
-	
 
 	@Override
-	//Call first by the browser
+	// Call first by the browser
 	public void init() {
 		initShape();
 		generateShape();
-		this.setBackground(Color.BLACK);
+		this.setBackground(Color.WHITE);
 		addKeyListener(this);
 	}
 
@@ -68,7 +68,7 @@ public class Board extends Applet implements KeyListener,Runnable {
 		// M = new int[numH][numW];
 		// this.setBackground(Color.BLACK);
 		Thread t = new Thread() {
-			
+
 			@Override
 			public void run() {
 				while (running) {
@@ -99,51 +99,90 @@ public class Board extends Applet implements KeyListener,Runnable {
 
 	@Override
 	public void paint(Graphics g) {
-//		super.paint(g);
+		// super.paint(g);
 		Graphics2D g2d = (Graphics2D) g;
 		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
 		System.out.println("Painting..");
 		this.setSize(WIDTH, HEIGHT);
-		g2d.setColor(Color.orange);
+		g2d.setColor(Color.RED);
 		g2d.drawString("Tetris game", 60, 20);
 		showStatus("Testing...");
-		for(int[] coor : coordinate) {
+		for (int[] coor : coordinate) {
 			if (M[coor[1]][coor[0]] == 1) {
 				g2d.fillRect(pixelWidth * coor[0], pixelHeight * coor[1], 20, 20);
 			}
 		}
-		//may not have to redraw the whole board
-//		for (int y = 0; y < numH; y++) {
-//			for (int x = 0; x < numW; x++) {
-//				g2d.setColor(Color.RED);
-//				if (M[y][x] == 1) {
-//					g2d.fillRect(pixelWidth * x, pixelHeight * y, 20, 20);
-//				}
-//			}
-//		}
+		
+		// Draw previous blocks
+		for (Integer key : setToDraw.keySet()) {
+			System.out.println(key);
+			ArrayList<Integer> row = setToDraw.get(key);
+			for (Integer point : row) {
+				g2d.fillRect(pixelWidth * point, pixelHeight * key, 20, 20);		
+			}
+		}
+		
 
 	}
 
 	public void update() {
-//		Graphics2D g2d = (Graphics2D) g;
-//		
-		//delete old coor before moving
-//		paint(g); //keep what was there before
-		for (int [] coor : coordinate) {
+		// Graphics2D g2d = (Graphics2D) g;
+		//
+		// delete old coor before moving
+		// paint(g); //keep what was there before
+		for (int[] coor : coordinate) {
 			M[coor[1]][coor[0]] = 0;
 		}
 		
-		for (int [] coor : coordinate) {
+		// Check if the block is movable or not
+		for (int[] coor : coordinate) {
+			if (coor[1] >= numH - 1) {
+				dy = 0;
+				dx = 0;
+				updateBoard();
+				coordinate.clear();
+				generateShape();
+				break;
+			} if (coor[0] == 0 || coor[0] > numW - 2) {
+				dx = 0;
+			} if (M[coor[1] + dy][coor[0]] == 1) {
+				dx = 0;
+				dy = 0;
+				updateBoard();
+				coordinate.clear();
+				generateShape();
+				break;
+			}
+		}
+		// Update moving box
+		for (int[] coor : coordinate) {
 			coor[1] += dy;
 			coor[0] += dx;
 		}
 		// Change to rand idx once all shape got set up
-		for (int [] coor : coordinate) {
+		for (int[] coor : coordinate) {
 			M[coor[1]][coor[0]] = 1;
 		}
 		repaint();
-		
+
+	}
+	
+	/*
+	 * Draw the block if it is not movable
+	 */
+	
+	public void updateBoard() {
+		for (int[] coorToDraw : coordinate) {
+			M[coorToDraw[1]][coorToDraw[0]] = 1;// Update matrix board
+			if (setToDraw.get(coorToDraw[1]) == null) {
+				ArrayList<Integer> val = new ArrayList<Integer>();
+				setToDraw.put(coorToDraw[1], val);
+			} else {
+				setToDraw.get(coorToDraw[1]).add(coorToDraw[0]);
+			}
+		}
+		System.out.println(setToDraw.toString());
 	}
 
 	@Override
