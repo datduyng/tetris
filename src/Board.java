@@ -108,6 +108,7 @@ public class Board extends Applet implements KeyListener, Runnable {
 	public void genShape() {
 		//rand
 		//delete old/free old 
+	//	currShape = new Shape(3);
 		currShape = new Shape(rand.nextInt(Shape.shapes.length));
 	}
 	public void update() {
@@ -130,7 +131,7 @@ public class Board extends Applet implements KeyListener, Runnable {
 				genShape();
 				break;
 			}
-			if (M[coor[1] + 1][coor[0]] == 1) {
+			if (M[coor[1] + 1][coor[0]] > 0) {
 				currShape.dy = 0;
 				currShape.dx = 0;
 				updateBoard();
@@ -181,6 +182,8 @@ public class Board extends Applet implements KeyListener, Runnable {
 		} else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
 			currShape.dx = 0;
 			currShape.dy = 3;
+		} else if (e.getKeyCode() == KeyEvent.VK_UP) {
+			currShape.rotate();
 		} else {
 			currShape.dy = 1;
 			currShape.dx = 0;
