@@ -1,5 +1,7 @@
 import java.applet.Applet;
+import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -7,8 +9,11 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.security.InvalidKeyException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Random;
+
+import javax.swing.JPanel;
 
 /**
  * 
@@ -18,8 +23,12 @@ import java.util.Random;
  */
 
 // for keyboard input
+
+
 public class Board extends Applet implements KeyListener, Runnable {
 
+
+	
 	boolean running = true;
 	final static int WIDTH = 600;
 	final static int HEIGHT = 800;
@@ -31,6 +40,10 @@ public class Board extends Applet implements KeyListener, Runnable {
 
 	static int M[][] = new int[numH][numW];
 	
+	final static ArrayList<Color> colors = new ArrayList<Color>(
+			Arrays.asList(Color.RED, Color.BLUE, Color.YELLOW, Color.DARK_GRAY, Color.MAGENTA));
+	
+	Color currColor; 
 	Shape currShape; 
 	Random rand = new Random();
 
@@ -40,8 +53,9 @@ public class Board extends Applet implements KeyListener, Runnable {
 	@Override
 	// Call first by the browser
 	public void init() {
-		this.setBackground(Color.WHITE);
-		addKeyListener(this);
+		this.setBackground(Color.BLACK);
+		this.addKeyListener(this);
+		currColor = colors.get(rand.nextInt(colors.size()));
 		currShape = new Shape(rand.nextInt(Shape.shapes.length)); 
 	}
 
@@ -86,14 +100,15 @@ public class Board extends Applet implements KeyListener, Runnable {
 		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
 		this.setSize(WIDTH, HEIGHT);
+		
 		g2d.setColor(Color.RED);
-		g2d.drawString("Tetris game", 60, 20);
+		Font serif = new Font("Serif", Font.BOLD, 28);
+		g2d.setFont(serif);
+		g2d.drawString("Tetris game", 40, 40);
 		showStatus("Testing...");
-		for (int[] coor : currShape.coordinate) {
-				g2d.fillRect(pixelWidth * coor[0], pixelHeight * coor[1], 20, 20);
-		}
 		
 		
+		g2d.setColor(Color.GRAY);
 		// Draw previous blocks
 		for (Integer key : setToDraw.keySet()) {
 			ArrayList<Integer> row = setToDraw.get(key);
@@ -101,6 +116,14 @@ public class Board extends Applet implements KeyListener, Runnable {
 				g2d.fillRect(pixelWidth * point, pixelHeight * key, 20, 20);		
 			}
 		}
+				
+		
+		for (int[] coor : currShape.coordinate) {
+				g2d.fillRect(pixelWidth * coor[0], pixelHeight * coor[1], 20, 20);
+		}
+		
+		
+		
 		
 
 	}
@@ -108,6 +131,7 @@ public class Board extends Applet implements KeyListener, Runnable {
 	public void genShape() {
 		//rand
 		//delete old/free old 
+		currColor = colors.get(rand.nextInt(colors.size()));
 		currShape = new Shape(rand.nextInt(Shape.shapes.length));
 	}
 	public void update() {
