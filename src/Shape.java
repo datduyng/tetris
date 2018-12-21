@@ -65,6 +65,9 @@ public class Shape {
 	 * 		  -		
 	 * [x'] = [cos(θ)  -sin(θ)][x]
 	 * [y']   [sin(θ)   cos(θ)][y]  
+	 * 
+	 * Formula derivation:Rotating Points Using Rotation Matrices[patrickJMT]
+	 *  https://www.youtube.com/watch?v=OYuoPTRVzxY
 	 */       
 
 	public void rotate() {
