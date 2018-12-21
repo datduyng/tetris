@@ -34,7 +34,7 @@ public class Board extends Applet implements KeyListener, Runnable {
 	Shape currShape; 
 	Random rand = new Random();
 
-	LinkedHashMap<Integer, ArrayList<Integer>> setToDraw = new LinkedHashMap<Integer, ArrayList<Integer>>();
+	static LinkedHashMap<Integer, ArrayList<Integer>> setToDraw = new LinkedHashMap<Integer, ArrayList<Integer>>();
 
 
 	@Override
@@ -130,8 +130,7 @@ public class Board extends Applet implements KeyListener, Runnable {
 				currShape.coordinate.clear();
 				genShape();
 				break;
-			}
-			if (M[coor[1] + 1][coor[0]] > 0) {
+			}else if (M[coor[1] + 1][coor[0]] == 1 ) {
 				currShape.dy = 0;
 				currShape.dx = 0;
 				updateBoard();
@@ -183,6 +182,10 @@ public class Board extends Applet implements KeyListener, Runnable {
 			currShape.dx = 0;
 			currShape.dy = 3;
 		} else if (e.getKeyCode() == KeyEvent.VK_UP) {
+			//delete old filled tile before rotate
+			for (int[] coor : currShape.coordinate) {
+				M[coor[1]][coor[0]] = 0;
+			}
 			currShape.rotate();
 		} else {
 			currShape.dy = 1;
