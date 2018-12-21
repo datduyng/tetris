@@ -82,8 +82,8 @@ public class Shape {
 		for(int[] coor: this.coordinate) {
 			int shiftedx = coor[0] - COMx; 
 			int shiftedy = coor[1] - COMy; 
-			coor[0] = (int) (shiftedx*Math.cos(Math.toRadians(90.0)) - shiftedy*Math.sin(Math.toRadians(90.0))) + COMx;
-			coor[1] = (int) (shiftedx*Math.sin(Math.toRadians(90.0)) - shiftedy*Math.cos(Math.toRadians(90.0))) + COMy;
+			coor[0] = (int) (shiftedx*Math.round(Math.cos(Math.toRadians(90.0))) - shiftedy*Math.round(Math.sin(Math.toRadians(90.0)))) + COMx;
+			coor[1] = (int) (shiftedx*Math.round(Math.sin(Math.toRadians(90.0))) - shiftedy*Math.round(Math.cos(Math.toRadians(90.0)))) + COMy;
 			System.out.println("x:"+coor[0]+"|y:"+coor[1]);
 		}// end for
 	}// end rotate
