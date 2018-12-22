@@ -60,7 +60,7 @@ public class Board extends Applet implements KeyListener, Runnable {
 			public void run() {
 				while (running) {
 					try {
-						update();
+						update(true, true);
 						repaint();
 						Thread.sleep(speed);
 					} catch (InterruptedException e) {
@@ -124,7 +124,7 @@ public class Board extends Applet implements KeyListener, Runnable {
 		}
 	}
 
-	public void update() {
+	public void update(boolean left_right, boolean down) {
 		// delete old coor before moving
 		// paint(g); //keep what was there before
 		for (int[] coor : currShape.coordinate) {
@@ -142,6 +142,9 @@ public class Board extends Applet implements KeyListener, Runnable {
 				break;
 			}
 			if (coor[0] == 0 || coor[0] > numW - 2) {
+				/*
+				 * TODO: Fix dx logic so it doesn't stick to the wall
+				 */
 				currShape.dx = 0;
 			} else if (M[coor[1]][coor[0] + 1] == 1 || M[coor[1]][coor[0] - 1] == 1) {
 				currShape.dx = 0;
@@ -165,8 +168,10 @@ public class Board extends Applet implements KeyListener, Runnable {
 		for (int[] coor : currShape.coordinate) {
 			//prevent falling to fast 
 			if(coor[1]+currShape.dy<=numH) if(M[coor[1]+currShape.dy][coor[0]] == 1) currShape.dy = 1;
-			coor[1] += currShape.dy;
-			coor[0] += currShape.dx;
+			
+			if (down) coor[1] += currShape.dy;
+			
+			if (left_right) coor[0] += currShape.dx;
 		}
 		// Change to rand idx once all shape got set up
 		for (int[] coor : currShape.coordinate) {
@@ -207,15 +212,17 @@ public class Board extends Applet implements KeyListener, Runnable {
 		if (e.getKeyCode() == KeyEvent.VK_LEFT) {
 			currShape.dx = -1;
 			currShape.dy = 1;
-			setSpeed(125);
+			update(true, false); // Increase left speed, down remain
+//			setSpeed(125);
 		} else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
 			currShape.dx = 1;
 			currShape.dy = 1;
-			setSpeed(125);
+			update(true, false);// Increase right speed, down remain
+//			setSpeed(125);
 		} else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
 			currShape.dx = 0;
-			currShape.dy = 1;
-			setSpeed(75);
+			currShape.dy = 1; 
+			update(false, true); // Increase down speed, sides remain
 		} else if (e.getKeyCode() == KeyEvent.VK_UP) {
 			// delete old filled tile before rotate
 			for (int[] coor : currShape.coordinate) {
