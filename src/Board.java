@@ -24,8 +24,8 @@ public class Board extends Applet implements KeyListener, Runnable {
 	final static int WIDTH = 600;
 	final static int HEIGHT = 800;
 
-	final static int numW = 30;
-	final static int numH = 40;
+	final static int numW = 20;
+	final static int numH = 25;
 	final static int pixelWidth = WIDTH / numW;
 	final static int pixelHeight = HEIGHT / numH;
 
@@ -93,46 +93,44 @@ public class Board extends Applet implements KeyListener, Runnable {
 
 		this.setSize(WIDTH, HEIGHT);
 
-		int R = (int) (Math.random( )*256);
-		int G = (int)(Math.random( )*256);
-		int B= (int)(Math.random( )*256);
-		Color randomColor = new Color(R, G, B);
-		g2d.setColor(randomColor);
+//		int R = (int) (Math.random( )*256);
+//		int G = (int)(Math.random( )*256);
+//		int B= (int)(Math.random( )*256);
+//		Color randomColor = new Color(R, G, B);
+//		g2d.setColor(randomColor);
+		g2d.setColor(Color.YELLOW);
 		g2d.drawString("Tetris game", 60, 20);
 		showStatus("Testing...");
 		for (int[] coor : currShape.coordinate) {
-			g2d.fillRect(pixelWidth * coor[0], pixelHeight * coor[1], 18, 18);
+			g2d.fillRect(pixelWidth * coor[0], pixelHeight * coor[1], Board.pixelWidth-2, Board.pixelHeight-2);
 		}
 
 		// Draw previous blocks
 		for (Integer key : setToDraw.keySet()) {
 			ArrayList<Integer> row = setToDraw.get(key);
 			for (Integer point : row) {
-				g2d.fillRect(pixelWidth * point, pixelHeight * key, 18, 18);
+				g2d.fillRect(pixelWidth * point, pixelHeight * key, Board.pixelWidth-2, Board.pixelHeight-2);
 			}
 		}
 
 	}
 
 	public void genShape() {
-		// rand
 		// delete old/free old
-		// currShape = new Shape(3);
 		currShape = new Shape(rand.nextInt(Shape.shapes.length));
-		if (!currShape.generated) {
+		if (!currShape.generated)
 			this.stop();
-		}
 	}
 
 	public void update(boolean left_right, boolean down) {
 		// delete old coor before moving
-		// paint(g); //keep what was there before
 		for (int[] coor : currShape.coordinate) {
 			M[coor[1]][coor[0]] = 0;
 		}
 		
 		// Check if the block is movable or not
 		for (int[] coor : currShape.coordinate) {
+			//TODO: clean up logic
 			if (coor[1] >= numH - 1) {
 				currShape.dy = 0;
 				currShape.dx = 0;
@@ -141,20 +139,26 @@ public class Board extends Applet implements KeyListener, Runnable {
 				genShape();
 				break;
 			}
-			if (coor[0] == 0 || coor[0] > numW - 2) {
-				/*
-				 * TODO: Fix dx logic so it doesn't stick to the wall
-				 */
+			if ((coor[0] == 0 && currShape.dx < 0) || (coor[0] > Board.numW - 2 && currShape.dx > 0)) {
 				currShape.dx = 0;
-			} else if (M[coor[1]][coor[0] + 1] == 1 || M[coor[1]][coor[0] - 1] == 1) {
-				currShape.dx = 0;
-			} else  if (M[coor[1] + 1][coor[0] + 1] == 1 || M[coor[1] + 1][coor[0] - 1] == 1) {
-
-				currShape.dx = 0;
-				currShape.dy = 1;
-
+			} 
 			
+			if(coor[0] == 0 && M[coor[1]][coor[0] + 1] == 1) currShape.dx = 0;
+			if(coor[0] > Board.numW - 2 && M[coor[1]][coor[0] - 1] == 1) currShape.dx = 0;
+			
+			if(coor[0] > 0 && coor[0] <= Board.numW-2){
+				if (M[coor[1]][coor[0] + 1] == 1 || M[coor[1]][coor[0] - 1] == 1) {
+					currShape.dx = 0;
+				}else  if (M[coor[1] + 1][coor[0] + 1] == 1 || M[coor[1] + 1][coor[0] - 1] == 1) {
+
+					currShape.dx = 0;
+					currShape.dy = 1;
+				}
 			}
+				
+			
+			
+			
 			if (M[coor[1] + 1][coor[0]] == 1 ) {
 				currShape.dy = 0;
 				currShape.dx = 0;
@@ -182,7 +186,6 @@ public class Board extends Applet implements KeyListener, Runnable {
 	/*
 	 * Draw the block if it is not movable
 	 */
-
 	public void updateBoard() {
 		
 		for (int[] coorToDraw : currShape.coordinate) {
@@ -195,7 +198,6 @@ public class Board extends Applet implements KeyListener, Runnable {
 				setToDraw.get(coorToDraw[1]).add(coorToDraw[0]);
 			}
 		}
-		System.out.println(setToDraw.toString());
 	}
 
 	public static int getSpeed() {
@@ -213,12 +215,10 @@ public class Board extends Applet implements KeyListener, Runnable {
 			currShape.dx = -1;
 			currShape.dy = 1;
 			update(true, false); // Increase left speed, down remain
-//			setSpeed(125);
 		} else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
 			currShape.dx = 1;
 			currShape.dy = 1;
 			update(true, false);// Increase right speed, down remain
-//			setSpeed(125);
 		} else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
 			currShape.dx = 0;
 			currShape.dy = 1; 
@@ -245,8 +245,6 @@ public class Board extends Applet implements KeyListener, Runnable {
 
 	@Override
 	public void keyTyped(KeyEvent arg0) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
