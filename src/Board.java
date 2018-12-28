@@ -9,6 +9,7 @@ import java.security.InvalidKeyException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 
@@ -29,12 +30,12 @@ public class Board extends Applet implements KeyListener, Runnable {
 	final static int pixelWidth = WIDTH / numW;
 	final static int pixelHeight = HEIGHT / numH;
 
-	static int speed = 100;
+	static int speed = 150;
 	static int M[][] = new int[numH][numW];
-	
-	static String[] color = new String[] {
-		"RED", "YELLOW", "BLUE", "ORANGE", "PINK" 	
-	};
+
+	// static String[] color = new String[] { "RED", "YELLOW", "BLUE", "ORANGE",
+	// "PINK" };
+	static int loopCounter = 0;
 
 	Shape currShape;
 	Random rand = new Random();
@@ -75,7 +76,7 @@ public class Board extends Applet implements KeyListener, Runnable {
 	@Override
 	public void stop() {
 		System.out.println("Game over!");
-//		System.exit(1);
+		// System.exit(1);
 		running = false;
 	}
 
@@ -93,23 +94,23 @@ public class Board extends Applet implements KeyListener, Runnable {
 
 		this.setSize(WIDTH, HEIGHT);
 
-//		int R = (int) (Math.random( )*256);
-//		int G = (int)(Math.random( )*256);
-//		int B= (int)(Math.random( )*256);
-//		Color randomColor = new Color(R, G, B);
-//		g2d.setColor(randomColor);
+		// int R = (int) (Math.random( )*256);
+		// int G = (int)(Math.random( )*256);
+		// int B= (int)(Math.random( )*256);
+		// Color randomColor = new Color(R, G, B);
+		// g2d.setColor(randomColor);
 		g2d.setColor(Color.YELLOW);
 		g2d.drawString("Tetris game", 60, 20);
 		showStatus("Testing...");
 		for (int[] coor : currShape.coordinate) {
-			g2d.fillRect(pixelWidth * coor[0], pixelHeight * coor[1], Board.pixelWidth-2, Board.pixelHeight-2);
+			g2d.fillRect(pixelWidth * coor[0], pixelHeight * coor[1], Board.pixelWidth - 2, Board.pixelHeight - 2);
 		}
 
 		// Draw previous blocks
 		for (Integer key : setToDraw.keySet()) {
 			ArrayList<Integer> row = setToDraw.get(key);
 			for (Integer point : row) {
-				g2d.fillRect(pixelWidth * point, pixelHeight * key, Board.pixelWidth-2, Board.pixelHeight-2);
+				g2d.fillRect(pixelWidth * point, pixelHeight * key, Board.pixelWidth - 2, Board.pixelHeight - 2);
 			}
 		}
 
@@ -127,55 +128,77 @@ public class Board extends Applet implements KeyListener, Runnable {
 		for (int[] coor : currShape.coordinate) {
 			M[coor[1]][coor[0]] = 0;
 		}
-		
+
 		// Check if the block is movable or not
 		for (int[] coor : currShape.coordinate) {
-			//TODO: clean up logic
+			// TODO: clean up logic
 			if (coor[1] >= numH - 1) {
-				currShape.dy = 0;
-				currShape.dx = 0;
-				updateBoard();
-				currShape.coordinate.clear();
-				genShape();
+				if (loopCounter > 3) {
+					loopCounter = 0;
+					currShape.dy = 0;
+					currShape.dx = 0;
+					updateBoard();
+					currShape.coordinate.clear();
+					genShape();				
+				} else {
+					currShape.dy = 0; // delay logic
+					loopCounter++;
+				}
 				break;
 			}
+			
+			// If shape near left or right border, set it's horizontal speed to 0		
 			if ((coor[0] == 0 && currShape.dx < 0) || (coor[0] > Board.numW - 2 && currShape.dx > 0)) {
 				currShape.dx = 0;
-			} 
+			}
 			
-			if(coor[0] == 0 && M[coor[1]][coor[0] + 1] == 1) currShape.dx = 0;
-			if(coor[0] > Board.numW - 2 && M[coor[1]][coor[0] - 1] == 1) currShape.dx = 0;
-			
-			if(coor[0] > 0 && coor[0] <= Board.numW-2){
+			if (coor[0] > 0 && coor[0] <= Board.numW - 2) {
 				if (M[coor[1]][coor[0] + 1] == 1 || M[coor[1]][coor[0] - 1] == 1) {
 					currShape.dx = 0;
-				}else  if (M[coor[1] + 1][coor[0] + 1] == 1 || M[coor[1] + 1][coor[0] - 1] == 1) {
-
+				} else if (M[coor[1] + 1][coor[0] + 1] == 1 || M[coor[1] + 1][coor[0] - 1] == 1) {
 					currShape.dx = 0;
 					currShape.dy = 1;
 				}
 			}
-				
-			
-			
-			
-			if (M[coor[1] + 1][coor[0]] == 1 ) {
-				currShape.dy = 0;
+			if (coor[0] == 0 && M[coor[1]][coor[0] + 1] == 1)
 				currShape.dx = 0;
-				updateBoard();
-				currShape.coordinate.clear();
-				genShape();
+			if (coor[0] > Board.numW - 2 && M[coor[1]][coor[0] - 1] == 1)
+				currShape.dx = 0;
+			
+			if (M[coor[1] + 1][coor[0]] == 1) {
+				if (loopCounter > 3) {
+					loopCounter = 0;
+					currShape.dy = 0;
+					currShape.dx = 0;
+					updateBoard();
+					currShape.coordinate.clear();
+					genShape();		
+				} else {
+					currShape.dy = 0; // delay logic
+					loopCounter++;
+				}
 				break;
-			} 
+			}
+			
+
+			
+
+			
+
+			
 		}
 		// Update moving box
 		for (int[] coor : currShape.coordinate) {
-			//prevent falling to fast 
-			if(coor[1]+currShape.dy<=numH) if(M[coor[1]+currShape.dy][coor[0]] == 1) currShape.dy = 1;
-			
-			if (down) coor[1] += currShape.dy;
-			
-			if (left_right) coor[0] += currShape.dx;
+			// prevent falling to fast
+			if (coor[1] + currShape.dy <= numH)
+				if (M[coor[1] + currShape.dy][coor[0]] == 1)
+					currShape.dy = 1;
+
+			if (down)
+				coor[1] += currShape.dy;
+
+			if (left_right)
+				coor[0] += currShape.dx;
 		}
 		// Change to rand idx once all shape got set up
 		for (int[] coor : currShape.coordinate) {
@@ -187,7 +210,7 @@ public class Board extends Applet implements KeyListener, Runnable {
 	 * Draw the block if it is not movable
 	 */
 	public void updateBoard() {
-		
+
 		for (int[] coorToDraw : currShape.coordinate) {
 			M[coorToDraw[1]][coorToDraw[0]] = 1;// Update matrix board
 			if (setToDraw.get(coorToDraw[1]) == null) {
@@ -205,7 +228,7 @@ public class Board extends Applet implements KeyListener, Runnable {
 	}
 
 	public static void setSpeed(int speed) {
-		// reresh rate [100, 200] 
+		// reresh rate [100, 200]
 		Board.speed = speed;
 	}
 
@@ -221,7 +244,7 @@ public class Board extends Applet implements KeyListener, Runnable {
 			update(true, false);// Increase right speed, down remain
 		} else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
 			currShape.dx = 0;
-			currShape.dy = 1; 
+			currShape.dy = 1;
 			update(false, true); // Increase down speed, sides remain
 		} else if (e.getKeyCode() == KeyEvent.VK_UP) {
 			// delete old filled tile before rotate
@@ -249,6 +272,8 @@ public class Board extends Applet implements KeyListener, Runnable {
 
 	@Override
 	public void run() {
+		// TODO Auto-generated method stub
+
 	}
 
 }
