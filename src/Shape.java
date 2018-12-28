@@ -112,6 +112,10 @@ public class Shape {
 				this.coordinate = deepcopy(original);
 				return false;
 			}
+			/*
+			 * TODO: -  We need to check if rotate will collide to another shape
+			 * 		 -  We need to check if rotate will make the block go out of Y coordinates (specifically rod shape)
+			 */
 			System.out.println("x:"+coor[0]+"|y:"+coor[1]);
 		}// end for
 		return true;

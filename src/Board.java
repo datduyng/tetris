@@ -137,55 +137,33 @@ public class Board extends Applet implements KeyListener, Runnable {
 					loopCounter = 0;
 					currShape.dy = 0;
 					currShape.dx = 0;
-					updateBoard();
+					lockShape();
 					currShape.coordinate.clear();
-					genShape();				
+					genShape();
 				} else {
 					currShape.dy = 0; // delay logic
 					loopCounter++;
+					shapeHandler(coor);
 				}
 				break;
 			}
-			
-			// If shape near left or right border, set it's horizontal speed to 0		
-			if ((coor[0] == 0 && currShape.dx < 0) || (coor[0] > Board.numW - 2 && currShape.dx > 0)) {
-				currShape.dx = 0;
-			}
-			
-			if (coor[0] > 0 && coor[0] <= Board.numW - 2) {
-				if (M[coor[1]][coor[0] + 1] == 1 || M[coor[1]][coor[0] - 1] == 1) {
-					currShape.dx = 0;
-				} else if (M[coor[1] + 1][coor[0] + 1] == 1 || M[coor[1] + 1][coor[0] - 1] == 1) {
-					currShape.dx = 0;
-					currShape.dy = 1;
-				}
-			}
-			if (coor[0] == 0 && M[coor[1]][coor[0] + 1] == 1)
-				currShape.dx = 0;
-			if (coor[0] > Board.numW - 2 && M[coor[1]][coor[0] - 1] == 1)
-				currShape.dx = 0;
-			
+
 			if (M[coor[1] + 1][coor[0]] == 1) {
 				if (loopCounter > 3) {
 					loopCounter = 0;
 					currShape.dy = 0;
 					currShape.dx = 0;
-					updateBoard();
+					lockShape();
 					currShape.coordinate.clear();
-					genShape();		
+					genShape();
 				} else {
 					currShape.dy = 0; // delay logic
 					loopCounter++;
+					shapeHandler(coor);
 				}
 				break;
 			}
-			
-
-			
-
-			
-
-			
+			shapeHandler(coor);
 		}
 		// Update moving box
 		for (int[] coor : currShape.coordinate) {
@@ -206,10 +184,34 @@ public class Board extends Applet implements KeyListener, Runnable {
 		}
 	}
 
+	public void shapeHandler(int[] coor) {
+		// If shape near left or right border, set it's horizontal speed to 0
+		if ((coor[0] == 0 && currShape.dx < 0) || (coor[0] > Board.numW - 2 && currShape.dx > 0)) {
+			currShape.dx = 0;
+		}
+
+		if (coor[0] > 0 && coor[0] <= Board.numW - 2) {
+			// Check if coordinate next to curr shape is already another shape or not
+			if (M[coor[1]][coor[0] + 1] == 1 || M[coor[1]][coor[0] - 1] == 1) {
+//				Board.loopCounter = 4;
+				currShape.dx = 0;
+			// coor[1] <= Board.numH - 2  added to prevent out of bound exception
+			} else if (coor[1] <= Board.numH - 2 && (M[coor[1] + 1][coor[0] + 1] == 1 || M[coor[1] + 1][coor[0] - 1] == 1)) {
+				currShape.dx = 0;
+				currShape.dy = 1;
+			}
+		}
+		if (coor[0] == 0 && M[coor[1]][coor[0] + 1] == 1)
+			
+			currShape.dx = 0;
+		if (coor[0] > Board.numW - 2 && M[coor[1]][coor[0] - 1] == 1)
+			currShape.dx = 0;
+	}
+
 	/*
-	 * Draw the block if it is not movable
+	 * Draw the block if it's done moving
 	 */
-	public void updateBoard() {
+	public void lockShape() {
 
 		for (int[] coorToDraw : currShape.coordinate) {
 			M[coorToDraw[1]][coorToDraw[0]] = 1;// Update matrix board
@@ -236,11 +238,11 @@ public class Board extends Applet implements KeyListener, Runnable {
 	public void keyPressed(KeyEvent e) {
 		if (e.getKeyCode() == KeyEvent.VK_LEFT) {
 			currShape.dx = -1;
-			currShape.dy = 1;
+			// currShape.dy = 1;
 			update(true, false); // Increase left speed, down remain
 		} else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
 			currShape.dx = 1;
-			currShape.dy = 1;
+			// currShape.dy = 1;
 			update(true, false);// Increase right speed, down remain
 		} else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
 			currShape.dx = 0;
