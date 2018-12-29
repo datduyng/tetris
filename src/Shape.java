@@ -46,10 +46,10 @@ public class Shape {
 			for (int x = 0; x < currShape[0].length; x++) {
 				// Set the offset according to board size
 				if (currShape[y][x] == 1) {
-					int[] tmp = new int[] { x + Board.pixelWidth / 2, y, 0 };
+					int[] tmp = new int[] { x + Board.numW / 2, y, 0 };
 					coordinate.add(tmp);
 				} else if (currShape[y][x] == 2) {
-					int[] tmp = new int[] { x + Board.pixelWidth / 2, y, 1 };
+					int[] tmp = new int[] { x + Board.numW / 2, y, 1 };
 					coordinate.add(tmp);
 				}
 			} // end x
@@ -107,7 +107,7 @@ public class Shape {
 			coor[0] = (int) (shiftedx*Math.round(Math.cos(Math.toRadians(90.0))) - shiftedy*Math.round(Math.sin(Math.toRadians(90.0)))) + COMx;
 			coor[1] = (int) (shiftedx*Math.round(Math.sin(Math.toRadians(90.0))) - shiftedy*Math.round(Math.cos(Math.toRadians(90.0)))) + COMy;
 			// Check if obj is out of bound after rotation
-			if (coor[0] >= Board.numW || coor[0] < 0) {
+			if (coor[0] >= Board.numW || coor[0] < 0 || coor[1] >= Board.numH-1 || Board.M[coor[1]][coor[0]] == 1) {
 				this.coordinate.clear();
 				this.coordinate = deepcopy(original);
 				return false;
