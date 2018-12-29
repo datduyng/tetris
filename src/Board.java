@@ -190,22 +190,21 @@ public class Board extends Applet implements KeyListener, Runnable {
 			currShape.dx = 0;
 		}
 
-		if (coor[0] > 0 && coor[0] <= Board.numW - 2) {
-			// Check if coordinate next to curr shape is already another shape or not
-			if (M[coor[1]][coor[0] + 1] == 1 || M[coor[1]][coor[0] - 1] == 1) {
-//				Board.loopCounter = 4;
-				currShape.dx = 0;
-			// coor[1] <= Board.numH - 2  added to prevent out of bound exception
-			} else if (coor[1] <= Board.numH - 2 && (M[coor[1] + 1][coor[0] + 1] == 1 || M[coor[1] + 1][coor[0] - 1] == 1)) {
-				currShape.dx = 0;
-				currShape.dy = 1;
-			}
-		}
 		if (coor[0] == 0 && M[coor[1]][coor[0] + 1] == 1)
-			
+
 			currShape.dx = 0;
 		if (coor[0] > Board.numW - 2 && M[coor[1]][coor[0] - 1] == 1)
 			currShape.dx = 0;
+
+		if (coor[0] > 0 && coor[0] <= Board.numW - 2) {
+			// Check if coordinate next to currrent shape is already another shape or not
+			if (M[coor[1]][coor[0] + 1] == 1 || M[coor[1]][coor[0] - 1] == 1) {
+				// Board.loopCounter = 4;
+				currShape.dx = 0;
+				// coor[1] <= Board.numH - 2 added to prevent out of bound exception
+			} 
+		}
+
 	}
 
 	/*
