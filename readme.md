@@ -10,4 +10,4 @@ Why implementing Tetris?
 
 
 ## Game play 
-> <img src="https://user-images.githubusercontent.com/35666615/50545050-c0103680-0bcd-11e9-82be-983c36bcd360.jpg" height="400" width="300">
+> <img src="https://user-images.githubusercontent.com/35666615/50545081-b4713f80-0bce-11e9-9789-5448c88392a7.jpg" height="500" width="300">
