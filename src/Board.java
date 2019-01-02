@@ -1,4 +1,6 @@
 import java.awt.Color;
+import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -7,6 +9,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.Random;
 
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
@@ -50,40 +53,46 @@ public class Board extends JPanel {
 	public static void main(String args[]) {
 		JFrame f = new JFrame("Tetris");
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		f.setSize(WIDTH + 50, HEIGHT + 50);
 		f.setBackground(Color.BLACK);
 		Board b = new Board();
-		b.init();
-		f.add(b);
+		f.getContentPane().add(b);
+		f.pack();
 		f.setVisible(true);
 		f.addKeyListener(new KeyListener() {
 			@Override
 			public void keyPressed(KeyEvent e) {
-				if (e.getKeyCode() == KeyEvent.VK_LEFT) {
+				switch (e.getKeyCode()) {
+				case KeyEvent.VK_LEFT:
 					b.currShape.dx = -1;
 					b.currShape.dy = 1;
 					b.update(true, false); // Increase left speed, down remain
-				} else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
+					break;
+				case KeyEvent.VK_RIGHT:
 					b.currShape.dx = 1;
 					b.currShape.dy = 1;
 					b.update(true, false);// Increase right speed, down remain
-				} else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
+					break;
+				case KeyEvent.VK_DOWN:
 					b.currShape.dx = 0;
 					b.currShape.dy = 1;
 					b.update(false, true); // Increase down speed, sides remain
-				} else if (e.getKeyCode() == KeyEvent.VK_UP) {
+					break;
+				case KeyEvent.VK_UP:
 					// delete old filled tile before rotate
 					for (int[] coor : b.currShape.coordinate) {
 						M[coor[1]][coor[0]] = Color.BLACK;
 					}
 					b.currShape.rotate();
-				} else if (e.getKeyCode() == KeyEvent.VK_SPACE) {
-					System.out.println(b.pause);
+					break;
+				case KeyEvent.VK_SPACE:
 					b.pause = !b.pause;
-				} else {
+					break;
+				default:
 					b.currShape.dy = 1;
 					b.currShape.dx = 0;
+					break;
 				}
+
 			}
 
 			@Override
@@ -104,13 +113,9 @@ public class Board extends JPanel {
 			public void run() {
 				while (b.running) {
 					try {
-						if (b.pause) {
-							// Thread.sleep(Integer.MAX_VALUE);
-						} else {
+						if (!b.pause)
 							b.update(true, true);
 							f.repaint();
-
-						}
 						Thread.sleep(speed);
 					} catch (InterruptedException e) {
 						System.out.println("Interupt ERROR");
@@ -118,13 +123,30 @@ public class Board extends JPanel {
 				}
 			}
 		};
+		
 		/*
 		 * Start running the application
 		 */
+		
 		t.start();
 
 	}
-
+	
+	private ImageIcon currentImage;
+	
+	public void paintComponent(Graphics page) {
+		super.paintComponent(page);
+		currentImage.paintIcon(this, page, 200, 300);
+	}
+	
+	public Board() {
+		init();
+		setBackground(Color.black);
+		setPreferredSize(new Dimension(WIDTH, HEIGHT));
+		ImageIcon play = new ImageIcon("img/play-button.png");
+		currentImage = play;
+		
+	}
 	// Call first by the browser
 	public void init() {
 
@@ -192,12 +214,12 @@ public class Board extends JPanel {
 			for (int y = 0; y < Board.numH; y++) {
 				// make color random in here
 				Color c = M[y][x];
-				g2d.setColor(c);
+				g2d.setColor(c.brighter());
 				if (c != Color.BLACK)
 					g2d.drawRoundRect(pixelWidth * x, pixelHeight * y, Board.pixelWidth - 5, Board.pixelHeight - 5, 15,
 							15);
-					g2d.fillRoundRect(pixelWidth * x, pixelHeight * y, Board.pixelWidth - 10, Board.pixelHeight - 10, 15,
-							15);
+				g2d.fillRoundRect(pixelWidth * x, pixelHeight * y, Board.pixelWidth - 10, Board.pixelHeight - 10, 15,
+						15);
 			}
 		}
 		// }
