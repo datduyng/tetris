@@ -1,15 +1,19 @@
 import java.applet.Applet;
 import java.awt.Color;
+import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Panel;
 import java.awt.RenderingHints;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.security.InvalidKeyException;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
+
+import javax.swing.JPanel;
 
 import com.sun.org.apache.xpath.internal.operations.Bool;
 
@@ -21,9 +25,12 @@ import com.sun.org.apache.xpath.internal.operations.Bool;
  */
 
 // for keyboard input
-public class Board extends Applet implements KeyListener, Runnable {
+public class Board extends Panel implements KeyListener, Runnable {
 
-	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2270756732278832436L;
 	boolean running = true;
 	final static int WIDTH = 600;
 	final static int HEIGHT = 800;
@@ -42,27 +49,43 @@ public class Board extends Applet implements KeyListener, Runnable {
 
 	Shape currShape;
 	Random rand = new Random();
+	
+	public static void main(String args[]) {
+		Frame f = new Frame();
+		f.addWindowListener(new java.awt.event.WindowAdapter() {
+		       public void windowClosing(java.awt.event.WindowEvent e) {
+		       System.exit(0);
+		       };
+		     });
+		Board b = new Board();
+		b.setSize(600, 800);
+		f.add(b);
+		f.pack();
+		b.init();
+		b.start();
+		f.setSize(620, 900);
+		f.show();
+	}
 
-	static LinkedHashMap<Integer, ArrayList<Integer>> setToDraw = new LinkedHashMap<Integer, ArrayList<Integer>>();
+	static LinkedHashMap<Integer, Set<Integer>> setToDraw = new LinkedHashMap<Integer, Set<Integer>>();
 
-	@Override
+	
 	// Call first by the browser
 	public void init() {
-		this.setBackground(Color.WHITE);
+		this.setBackground(Color.BLACK);
 		addKeyListener(this);
 		currShape = new Shape(rand.nextInt(Shape.shapes.length));
 	}
-	
+
 	public void printBoard() {
-		for(int i=0;i<numH;i++) {
-			for(int j =0;j<numW;j++) {
+		for (int i = 0; i < numH; i++) {
+			for (int j = 0; j < numW; j++) {
 				System.out.print(M[i][j]);
 			}
 			System.out.println("");
 		}
 	}
 
-	@Override
 	public void start() {
 
 		// M = new int[numH][numW];
@@ -87,14 +110,12 @@ public class Board extends Applet implements KeyListener, Runnable {
 		t.start();
 	}
 
-	@Override
 	public void stop() {
 		System.out.println("Game over!");
 		// System.exit(1);
 		running = false;
 	}
 
-	@Override
 	public void destroy() {
 		running = false;
 
@@ -108,21 +129,21 @@ public class Board extends Applet implements KeyListener, Runnable {
 
 		this.setSize(WIDTH, HEIGHT);
 
-		// int R = (int) (Math.random( )*256);
-		// int G = (int)(Math.random( )*256);
-		// int B= (int)(Math.random( )*256);
-		// Color randomColor = new Color(R, G, B);
-		// g2d.setColor(randomColor);
+//		 int R = (int) (Math.random( )*256);
+//		 int G = (int)(Math.random( )*256);
+//		 int B= (int)(Math.random( )*256);
+//		 Color randomColor = new Color(R, G, B);
+//		 g2d.setColor(randomColor);
 		g2d.setColor(Color.YELLOW);
 		g2d.drawString("Tetris game", 60, 20);
-		showStatus("Testing...");
+		
 		for (int[] coor : currShape.coordinate) {
 			g2d.fillRect(pixelWidth * coor[0], pixelHeight * coor[1], Board.pixelWidth - 2, Board.pixelHeight - 2);
 		}
 
 		// Draw previous blocks
 		for (Integer key : setToDraw.keySet()) {
-			ArrayList<Integer> row = setToDraw.get(key);
+			Set<Integer> row = setToDraw.get(key);
 			for (Integer point : row) {
 				g2d.fillRect(pixelWidth * point, pixelHeight * key, Board.pixelWidth - 2, Board.pixelHeight - 2);
 			}
@@ -139,7 +160,6 @@ public class Board extends Applet implements KeyListener, Runnable {
 
 	public void update(boolean left_right, boolean down) {
 
-		
 		// delete old coor before moving
 		for (int[] coor : currShape.coordinate) {
 			M[coor[1]][coor[0]] = 0;
@@ -147,23 +167,24 @@ public class Board extends Applet implements KeyListener, Runnable {
 
 		// Check if the block is movable or not
 		for (int[] coor : currShape.coordinate) {
+			System.out.println(coor[0] + " | " + coor[1]);
 			// TODO: clean up logic
 			if (coor[1] >= numH - 1) {
 				if (loopCounter > 3) {
-					
+
 					currShape.dy = 0;
 					currShape.dx = 0;
 					lockShape();
 					currShape.coordinate.clear();
 					genShape();
 				} else {
-					
+
 					loopCounter++;
 					shapeHandler(coor);
 					currShape.dy = 0; // delay logic
 				}
 				break;
-				
+
 			}
 
 			if (M[coor[1] + 1][coor[0]] == 1) {
@@ -174,30 +195,31 @@ public class Board extends Applet implements KeyListener, Runnable {
 					lockShape();
 					currShape.coordinate.clear();
 					genShape();
-					
+
 				} else {
-					
+
 					loopCounter++;
 					shapeHandler(coor);
 					currShape.dy = 0; // delay logic
 				}
 				break;
-				
+
 			}
-			if(shapeHandler(coor)) break;
+			if (shapeHandler(coor))
+				break;
 		}
-		
 
 		// Update moving box
 		for (int[] coor : currShape.coordinate) {
 			// prevent falling to fast
-			if (coor[1] + currShape.dy <= numH)
+			if (coor[1] + currShape.dy < numH)
 				if (M[coor[1] + currShape.dy][coor[0]] == 1)
 					currShape.dy = 1;
 
 			if (down)
 				coor[1] += currShape.dy;
-			if(Board.M[coor[1]][coor[0] + currShape.dx] == 1) currShape.dx = 0 ;
+			if (Board.M[coor[1]][coor[0] + currShape.dx] == 1)
+				currShape.dx = 0;
 			if (left_right)
 				coor[0] += currShape.dx;
 		}
@@ -208,28 +230,31 @@ public class Board extends Applet implements KeyListener, Runnable {
 	}
 
 	public boolean shapeHandler(int[] coor) {
+
+		int x = coor[0], y = coor[1];
+		boolean state = false;
+		// check for out of bound
 		// If shape near left or right border, set it's horizontal speed to 0
-		int x = coor[0], y = coor[1]; 
-		boolean state =false;
-		//check for out of bound
-		if(x+currShape.dx > Board.numW-1 || x+currShape.dx < 0) {
-			currShape.dx = 0;
-			state = true;
-		}else if(M[y][x+currShape.dx] == 1)	{
+		if (x + currShape.dx > Board.numW - 1 || x + currShape.dx < 0) {
 			currShape.dx = 0;
 			state = true;
 		}
-		//check diagonal 
-		if(x+currShape.dx <= Board.numW-1 && x+currShape.dx >= 0 && y+currShape.dy <= Board.numH-1) {
-			if(Board.M[y+currShape.dy][x+currShape.dx] == 1 && (currShape.dx == 1||currShape.dx == -1) && currShape.dy == 1 ) {
+		if (M[y][x + currShape.dx] == 1) {
+			currShape.dx = 0;
+			state = true;
+		}
+		// check diagonal
+		if (x + currShape.dx <= Board.numW - 1 && x + currShape.dx >= 0 && y + currShape.dy <= Board.numH - 1) {
+			if (Board.M[y + currShape.dy][x + currShape.dx] == 1 && (currShape.dx == 1 || currShape.dx == -1)
+					&& currShape.dy == 1) {
 				currShape.dx = 0;
 				state = true;
 			}
 		}
 		return state;
-			
-	
+
 	}
+
 	/*
 	 * Draw the block if it's done moving
 	 */
@@ -238,7 +263,7 @@ public class Board extends Applet implements KeyListener, Runnable {
 		for (int[] coorToDraw : currShape.coordinate) {
 			M[coorToDraw[1]][coorToDraw[0]] = 1;// Update matrix board
 			if (setToDraw.get(coorToDraw[1]) == null) {
-				ArrayList<Integer> val = new ArrayList<Integer>();
+				Set<Integer> val = new HashSet<Integer>();
 				val.add(coorToDraw[0]);
 				setToDraw.put(coorToDraw[1], val);
 			} else {
@@ -260,11 +285,11 @@ public class Board extends Applet implements KeyListener, Runnable {
 	public void keyPressed(KeyEvent e) {
 		if (e.getKeyCode() == KeyEvent.VK_LEFT) {
 			currShape.dx = -1;
-			currShape.dy = 1;
+			// currShape.dy = 1;
 			update(true, false); // Increase left speed, down remain
 		} else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
 			currShape.dx = 1;
-			currShape.dy = 1;
+			// currShape.dy = 1;
 			update(true, false);// Increase right speed, down remain
 		} else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
 			currShape.dx = 0;
@@ -276,6 +301,9 @@ public class Board extends Applet implements KeyListener, Runnable {
 				M[coor[1]][coor[0]] = 0;
 			}
 			currShape.rotate();
+		} else if (e.getKeyCode() == KeyEvent.VK_P) {
+			stop();
+
 		} else {
 			currShape.dy = 1;
 			currShape.dx = 0;
