@@ -126,13 +126,4 @@ public class Shape {
 		}// end for
 		return true;
 	}// end rotate
-
-	public String coordinateToStr() {
-		String result = "{";
-		for(int [] coor : this.coordinate) {
-			
-		}
-		return result; 
-		
-	}
 }

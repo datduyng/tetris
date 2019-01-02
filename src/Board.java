@@ -1,22 +1,11 @@
-import java.applet.Applet;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.RenderingHints;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map.Entry;
-import java.util.NavigableMap;
 import java.util.Random;
-import java.util.TreeMap;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -62,11 +51,11 @@ public class Board extends JPanel {
 		JFrame f = new JFrame("Tetris");
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		f.setSize(WIDTH + 50, HEIGHT + 50);
-		f.setVisible(true);
 		f.setBackground(Color.BLACK);
 		Board b = new Board();
 		b.init();
 		f.add(b);
+		f.setVisible(true);
 		f.addKeyListener(new KeyListener() {
 			@Override
 			public void keyPressed(KeyEvent e) {
@@ -312,7 +301,6 @@ public class Board extends JPanel {
 	public boolean shapeHandler(int[] coor) {
 		// If shape near left or right border, set it's horizontal speed to 0
 		int x = coor[0], y = coor[1];
-		boolean state = false;
 		// check for out of bound
 		if (x + currShape.dx > Board.numW - 1 || x + currShape.dx < 0) {
 			currShape.dx = 0;
@@ -372,7 +360,7 @@ public class Board extends JPanel {
 		int runningCombo = 0;// this is harder to earn to get higher score
 		// only check row where tile just landed. these are the possible scoring spot
 		for (int[] coor : currShape.coordinate) {
-			int x = coor[0], y = coor[1];// unpack value
+			int y = coor[1];// unpack value
 			if (Board.checkFullRow(y)) {// if the row is full
 				runningCombo += 1;
 				int continuousY = y;
