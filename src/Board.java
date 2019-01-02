@@ -1,17 +1,20 @@
 import java.applet.Applet;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.security.InvalidKeyException;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map.Entry;
+import java.util.NavigableMap;
 import java.util.Random;
-import java.util.concurrent.TimeUnit;
-
-import com.sun.org.apache.xpath.internal.operations.Bool;
+import java.util.TreeMap;
 
 /**
  * 
@@ -33,24 +36,24 @@ public class Board extends Applet implements KeyListener, Runnable {
 	final static int pixelWidth = WIDTH / numW;
 	final static int pixelHeight = HEIGHT / numH;
 
+	static int totalScore = 0;
 	static int speed = 150;
 	static int M[][] = new int[numH][numW];
 
-	// static String[] color = new String[] { "RED", "YELLOW", "BLUE", "ORANGE",
-	// "PINK" };
+	static Color[] colors = new Color[] {Color.YELLOW, Color.RED, Color.BLUE, Color.CYAN, Color.GREEN};
 	static int loopCounter = 0;
-
+	
+	
 	Shape currShape;
 	Random rand = new Random();
-
-	static LinkedHashMap<Integer, ArrayList<Integer>> setToDraw = new LinkedHashMap<Integer, ArrayList<Integer>>();
-
+	
 	@Override
 	// Call first by the browser
 	public void init() {
 		this.setBackground(Color.WHITE);
 		addKeyListener(this);
 		currShape = new Shape(rand.nextInt(Shape.shapes.length));
+//		currShape = new Shape(5);
 	}
 	
 	public void printBoard() {
@@ -61,7 +64,13 @@ public class Board extends Applet implements KeyListener, Runnable {
 			System.out.println("");
 		}
 	}
-
+	
+	static public boolean checkFullRow(int row) {
+		for(int i = 0; i<M[row].length;i++) {
+			if(M[row][i] == 0) return false;
+		}
+		return true;
+	}
 	@Override
 	public void start() {
 
@@ -73,8 +82,6 @@ public class Board extends Applet implements KeyListener, Runnable {
 			public void run() {
 				while (running) {
 					try {
-						printBoard();
-						System.out.println("===============");
 						update(true, true);
 						repaint();
 						Thread.sleep(speed);
@@ -90,7 +97,7 @@ public class Board extends Applet implements KeyListener, Runnable {
 	@Override
 	public void stop() {
 		System.out.println("Game over!");
-		// System.exit(1);
+//		 System.exit(1);
 		running = false;
 	}
 
@@ -114,25 +121,28 @@ public class Board extends Applet implements KeyListener, Runnable {
 		// Color randomColor = new Color(R, G, B);
 		// g2d.setColor(randomColor);
 		g2d.setColor(Color.YELLOW);
-		g2d.drawString("Tetris game", 60, 20);
+		Font serif = new Font("Serif", Font.BOLD, 40);
+		g2d.setFont(serif);
+		g2d.drawString("Tetris game", 30, 40);
+		g2d.drawString("Score:"+Board.totalScore, 40, 80);
 		showStatus("Testing...");
 		for (int[] coor : currShape.coordinate) {
 			g2d.fillRect(pixelWidth * coor[0], pixelHeight * coor[1], Board.pixelWidth - 2, Board.pixelHeight - 2);
 		}
-
-		// Draw previous blocks
-		for (Integer key : setToDraw.keySet()) {
-			ArrayList<Integer> row = setToDraw.get(key);
-			for (Integer point : row) {
-				g2d.fillRect(pixelWidth * point, pixelHeight * key, Board.pixelWidth - 2, Board.pixelHeight - 2);
+		
+		//draw the whole board
+		for(int x=0;x<Board.numW;x++) {
+			for(int y=0;y<Board.numH;y++) {
+				//make color random in here
+				if(M[y][x] == 1) g2d.fillRect(pixelWidth * x, pixelHeight * y, Board.pixelWidth - 2, Board.pixelHeight - 2);
 			}
 		}
-
 	}
 
 	public void genShape() {
 		// delete old/free old
 		currShape = new Shape(rand.nextInt(Shape.shapes.length));
+//		currShape = new Shape(5);
 		if (!currShape.generated)
 			this.stop();
 	}
@@ -159,8 +169,10 @@ public class Board extends Applet implements KeyListener, Runnable {
 				} else {
 					
 					loopCounter++;
-					shapeHandler(coor);
+					System.out.println("Currshape:coordinate:"+currShape.coordinate.toString());
 					currShape.dy = 0; // delay logic
+					for(int[] co: currShape.coordinate) {if(shapeHandler(co)) { System.out.println("Stop:"+currShape.dx);break;}}
+					
 				}
 				break;
 				
@@ -198,8 +210,10 @@ public class Board extends Applet implements KeyListener, Runnable {
 			if (down)
 				coor[1] += currShape.dy;
 			if(Board.M[coor[1]][coor[0] + currShape.dx] == 1) currShape.dx = 0 ;
-			if (left_right)
+			if (left_right && !shapeHandler(coor)) {
+//				System.out.println("Update dx:"+currShape.dx);
 				coor[0] += currShape.dx;
+			}
 		}
 		// Change to rand idx once all shape got set up
 		for (int[] coor : currShape.coordinate) {
@@ -214,37 +228,77 @@ public class Board extends Applet implements KeyListener, Runnable {
 		//check for out of bound
 		if(x+currShape.dx > Board.numW-1 || x+currShape.dx < 0) {
 			currShape.dx = 0;
-			state = true;
+			return true;
 		}else if(M[y][x+currShape.dx] == 1)	{
 			currShape.dx = 0;
-			state = true;
+			return true;
 		}
 		//check diagonal 
 		if(x+currShape.dx <= Board.numW-1 && x+currShape.dx >= 0 && y+currShape.dy <= Board.numH-1) {
 			if(Board.M[y+currShape.dy][x+currShape.dx] == 1 && (currShape.dx == 1||currShape.dx == -1) && currShape.dy == 1 ) {
 				currShape.dx = 0;
-				state = true;
+				return true;
 			}
 		}
-		return state;
+		return false;
 			
 	
+	}
+	
+	public static boolean clearRow(int row) {
+		if(row < 0 || row > Board.numH-1) return false;
+		for(int j=0;j<Board.numH;j++) {
+			Board.M[row][j] = 0;
+		}
+		return false;
+	}
+	
+	public static boolean copyRowFromTo(int from, int to) {
+		if(from < 0 || from > Board.numH-1 || to < 0 || to>Board.numH-1) return false; 
+		for(int j=0;j<Board.numW;j++) {
+			Board.M[to][j] = Board.M[from][j];
+		}
+		return true;
 	}
 	/*
 	 * Draw the block if it's done moving
 	 */
 	public void lockShape() {
 		Board.loopCounter = 0;
+		
+		//Lock shape on the board
 		for (int[] coorToDraw : currShape.coordinate) {
 			M[coorToDraw[1]][coorToDraw[0]] = 1;// Update matrix board
-			if (setToDraw.get(coorToDraw[1]) == null) {
-				ArrayList<Integer> val = new ArrayList<Integer>();
-				val.add(coorToDraw[0]);
-				setToDraw.put(coorToDraw[1], val);
-			} else {
-				setToDraw.get(coorToDraw[1]).add(coorToDraw[0]);
+		}
+		
+		//Score here
+		
+		//square block score
+		int blockcombo = 0;
+		
+		//interlace layer cobo score
+		int runningCombo = 0;// this is harder to earn to get higher score
+		//only check row where tile just landed. these are the possible scoring spot
+		for(int [] coor : currShape.coordinate) {
+			int x = coor[0], y = coor[1];//unpack value
+			if(Board.checkFullRow(y)) {// if the row is full
+				runningCombo += 1;
+				int continuousY = y;
+				while(Board.checkFullRow(continuousY)) {continuousY -= 1;blockcombo+=1;}
+				
+				//shift block down
+				int shiftTo = y;
+				for(int j=continuousY;j>=0;j--) {
+					copyRowFromTo(j, shiftTo);
+					shiftTo -= 1;
+				}
+				Board.totalScore += blockcombo * 300;
+				blockcombo = 0;
 			}
 		}
+		Board.totalScore += Math.max((runningCombo-1),0) * 600;
+		runningCombo = 0;
+		repaint();
 	}
 
 	public static int getSpeed() {
