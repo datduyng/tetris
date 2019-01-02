@@ -34,7 +34,7 @@ public class Shape {
 	// ArrayList<int[][]> shapes = new ArrayList<int[][]>();
 
 	public Shape(int id) {
-		this.id = id;
+		this.id = 3;// change to id
 		this.dx = 0;
 		this.dy = 1;
 		genShapeCoor(this.id);
@@ -117,5 +117,12 @@ public class Shape {
 		return true;
 	}// end rotate
 
-	
+	public String coordinateToStr() {
+		String result = "{";
+		for(int [] coor : this.coordinate) {
+			
+		}
+		return result; 
+		
+	}
 }

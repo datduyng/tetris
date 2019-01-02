@@ -169,8 +169,10 @@ public class Board extends Applet implements KeyListener, Runnable {
 				} else {
 					
 					loopCounter++;
-					shapeHandler(coor);
+					System.out.println("Currshape:coordinate:"+currShape.coordinate.toString());
 					currShape.dy = 0; // delay logic
+					for(int[] co: currShape.coordinate) {if(shapeHandler(co)) { System.out.println("Stop:"+currShape.dx);break;}}
+					
 				}
 				break;
 				
@@ -208,8 +210,10 @@ public class Board extends Applet implements KeyListener, Runnable {
 			if (down)
 				coor[1] += currShape.dy;
 			if(Board.M[coor[1]][coor[0] + currShape.dx] == 1) currShape.dx = 0 ;
-			if (left_right)
+			if (left_right && !shapeHandler(coor)) {
+//				System.out.println("Update dx:"+currShape.dx);
 				coor[0] += currShape.dx;
+			}
 		}
 		// Change to rand idx once all shape got set up
 		for (int[] coor : currShape.coordinate) {
@@ -224,19 +228,19 @@ public class Board extends Applet implements KeyListener, Runnable {
 		//check for out of bound
 		if(x+currShape.dx > Board.numW-1 || x+currShape.dx < 0) {
 			currShape.dx = 0;
-			state = true;
+			return true;
 		}else if(M[y][x+currShape.dx] == 1)	{
 			currShape.dx = 0;
-			state = true;
+			return true;
 		}
 		//check diagonal 
 		if(x+currShape.dx <= Board.numW-1 && x+currShape.dx >= 0 && y+currShape.dy <= Board.numH-1) {
 			if(Board.M[y+currShape.dy][x+currShape.dx] == 1 && (currShape.dx == 1||currShape.dx == -1) && currShape.dy == 1 ) {
 				currShape.dx = 0;
-				state = true;
+				return true;
 			}
 		}
-		return state;
+		return false;
 			
 	
 	}
