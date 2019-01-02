@@ -10,4 +10,4 @@ Why implementing Tetris?
 
 
 ## Game play 
-> ![step](https://user-images.githubusercontent.com/35666615/50265635-15865f80-03e6-11e9-8d99-72f96cbd73b6.jpg)
+> <img src="https://user-images.githubusercontent.com/35666615/50545081-b4713f80-0bce-11e9-9789-5448c88392a7.jpg" height="500" width="300">

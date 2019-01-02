@@ -12,7 +12,6 @@ import java.util.LinkedHashMap;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
@@ -27,7 +26,6 @@ import com.sun.org.apache.xpath.internal.operations.Bool;
 
 // for keyboard input
 public class Board extends JPanel{
-
 	/**
 	 * 
 	 */
@@ -100,14 +98,12 @@ public class Board extends JPanel{
 				}
 //				repaint();
 			}
-
 			@Override
 			public void keyReleased(KeyEvent arg0) {
 				currShape.dx = 0;
 				currShape.dy = 1;
 				setSpeed(200);
 			}
-
 			@Override
 			public void keyTyped(KeyEvent arg0) {
 			}
@@ -132,7 +128,6 @@ public class Board extends JPanel{
 		}.start();
 		
 	}
-
 	static LinkedHashMap<Integer, Set<Integer>> setToDraw = new LinkedHashMap<Integer, Set<Integer>>();
 
 	
@@ -152,7 +147,6 @@ public class Board extends JPanel{
 		}
 	}
 	
-
 	public void stop() {
 		System.out.println("Game over!");
 		// System.exit(1);
@@ -180,7 +174,6 @@ public class Board extends JPanel{
 //		 g.setColor(randomColor);
 		g.setColor(Color.YELLOW);
 		g.drawString("Tetris game", 60, 20);
-		
 		for (int[] coor : currShape.coordinate) {
 			g.fillRect(pixelWidth * coor[0], pixelHeight * coor[1], Board.pixelWidth - 2, Board.pixelHeight - 2);
 		}
@@ -324,5 +317,4 @@ public class Board extends JPanel{
 		// reresh rate [100, 200]
 		Board.speed = speed;
 	}
-
 }
