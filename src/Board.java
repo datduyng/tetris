@@ -10,6 +10,7 @@ import java.awt.event.KeyListener;
 import java.util.Random;
 
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
@@ -30,19 +31,21 @@ public class Board extends JPanel {
 	boolean running = true;
 	boolean pause = false;
 	final static int WIDTH = 600;
-	final static int HEIGHT = 800;
+	final static int HEIGHT = 1000;
 
 	final static int numW = 12;
-	final static int numH = 16;
+	final static int numH = 20;
 	final static int pixelWidth = WIDTH / numW;
 	final static int pixelHeight = HEIGHT / numH;
-
+	final static int playButtonWidth = 439;
+	final static int playButtonHeight = 173;
 	static int totalScore = 0;
 	static int speed = 150;
 	static Color M[][] = new Color[numH][numW];
 
 	static boolean falling;
 	static int loopCounter = 0;
+	static boolean play = false;
 
 	Color color;
 	Shape currShape;
@@ -53,9 +56,23 @@ public class Board extends JPanel {
 	public static void main(String args[]) {
 		JFrame f = new JFrame("Tetris");
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
+		/*
+		 * Adding play button
+		 */
+		Container contentPane = f.getContentPane();
+		ImageIcon playButtonIcon = new ImageIcon("img/play-button.png");
+		JButton playButton = new JButton();
+		playButton.setIcon(playButtonIcon);
+		playButton.setBounds(90, 300, playButtonWidth, playButtonHeight);
+		playButton.addActionListener(new ButtonHandler());
+		contentPane.add(playButton);
+		/*
+		 * End of play button
+		 */
 		f.setBackground(Color.BLACK);
 		Board b = new Board();
-		f.getContentPane().add(b);
+		f.add(b);
 		f.pack();
 		f.setVisible(true);
 		f.addKeyListener(new KeyListener() {
@@ -63,6 +80,7 @@ public class Board extends JPanel {
 			public void keyPressed(KeyEvent e) {
 				switch (e.getKeyCode()) {
 				case KeyEvent.VK_LEFT:
+					System.out.println("left");
 					b.currShape.dx = -1;
 					b.currShape.dy = 1;
 					b.update(true, false); // Increase left speed, down remain
@@ -106,29 +124,34 @@ public class Board extends JPanel {
 			public void keyTyped(KeyEvent arg0) {
 			}
 		});
-
-		t = new Thread() {
-
-			@Override
-			public void run() {
-				while (b.running) {
-					try {
-						if (!b.pause)
-							b.update(true, true);
+		while(!play) {
+			// Halt
+			System.out.println(play);
+		}
+		if (play) {
+			contentPane.remove(playButton);
+			t = new Thread() {
+				@Override
+				public void run() {
+					while (b.running) {
+						try {
+							if (!b.pause)
+								b.update(true, true);
 							f.repaint();
-						Thread.sleep(speed);
-					} catch (InterruptedException e) {
-						System.out.println("Interupt ERROR");
+							Thread.sleep(speed);
+						} catch (InterruptedException e) {
+							System.out.println("Interupt ERROR");
+						}
 					}
 				}
-			}
-		};
-		
+			};
+
 		/*
 		 * Start running the application
 		 */
 		
-		t.start();
+			t.start();
+		}
 
 	}
 	
