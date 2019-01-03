@@ -71,14 +71,8 @@ public class Board extends JPanel implements ActionListener {
 		f = new JFrame("Tetris");
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
-		/*
-		 * Adding play button
-		 */
 		
 		contentPane = f.getContentPane();
-		/*
-		 * End of play button
-		 */
 		f.setBackground(Color.BLACK);
 		Board b = new Board();
 		f.add(b);
