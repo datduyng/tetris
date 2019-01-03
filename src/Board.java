@@ -2,9 +2,12 @@ import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.Random;
@@ -12,7 +15,11 @@ import java.util.Random;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JRootPane;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 
 /**
  * 
@@ -22,13 +29,13 @@ import javax.swing.JPanel;
  */
 
 // for keyboard input
-public class Board extends JPanel {
+public class Board extends JPanel implements ActionListener {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	boolean running = true;
+	static boolean running = false;
 	boolean pause = false;
 	final static int WIDTH = 600;
 	final static int HEIGHT = 1000;
@@ -42,7 +49,7 @@ public class Board extends JPanel {
 	static int totalScore = 0;
 	static int speed = 150;
 	static Color M[][] = new Color[numH][numW];
-
+	
 	static boolean falling;
 	static int loopCounter = 0;
 	static boolean play = false;
@@ -52,21 +59,23 @@ public class Board extends JPanel {
 	Random rand = new Random();
 
 	static Thread t;
-
+	private JButton playButton;
+	static Container contentPane;
+	private JTextField nameField;
+	private JLabel label;
+	private JLabel scoresBoard;
+	static JFrame f;
+	static String playerName = "";
+	
 	public static void main(String args[]) {
-		JFrame f = new JFrame("Tetris");
+		f = new JFrame("Tetris");
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		/*
 		 * Adding play button
 		 */
-		Container contentPane = f.getContentPane();
-		ImageIcon playButtonIcon = new ImageIcon("img/play-button.png");
-		JButton playButton = new JButton();
-		playButton.setIcon(playButtonIcon);
-		playButton.setBounds(90, 300, playButtonWidth, playButtonHeight);
-		playButton.addActionListener(new ButtonHandler());
-		contentPane.add(playButton);
+		
+		contentPane = f.getContentPane();
 		/*
 		 * End of play button
 		 */
@@ -80,7 +89,6 @@ public class Board extends JPanel {
 			public void keyPressed(KeyEvent e) {
 				switch (e.getKeyCode()) {
 				case KeyEvent.VK_LEFT:
-					System.out.println("left");
 					b.currShape.dx = -1;
 					b.currShape.dy = 1;
 					b.update(true, false); // Increase left speed, down remain
@@ -129,11 +137,13 @@ public class Board extends JPanel {
 			System.out.println(play);
 		}
 		if (play) {
-			contentPane.remove(playButton);
+			contentPane.remove(b.playButton);
+			contentPane.remove(b.nameField);
+			contentPane.remove(b.label);
 			t = new Thread() {
 				@Override
 				public void run() {
-					while (b.running) {
+					while (running) {
 						try {
 							if (!b.pause)
 								b.update(true, true);
@@ -155,21 +165,63 @@ public class Board extends JPanel {
 
 	}
 	
-	private ImageIcon currentImage;
-	
-	public void paintComponent(Graphics page) {
-		super.paintComponent(page);
-		currentImage.paintIcon(this, page, 200, 300);
+	public void actionPerformed(ActionEvent event) {
+		if(event.getSource() instanceof JTextField){
+			
+			
+		}
+
+		JButton clickedButton 	= (JButton) event.getSource();
+		JRootPane rootPane		= clickedButton.getRootPane();
+		Frame frame				= (JFrame) rootPane.getParent();
+		playerName = nameField.getText();
+		f.setTitle("Player : " + nameField.getText());
+		play = true;
+		running = true;
 	}
+	
 	
 	public Board() {
 		init();
-		setBackground(Color.black);
 		setPreferredSize(new Dimension(WIDTH, HEIGHT));
-		ImageIcon play = new ImageIcon("img/play-button.png");
-		currentImage = play;
+		ImageIcon playButtonIcon = new ImageIcon("img/play-button.png");
+		playButton = new JButton();
+		label = new JLabel("Enter your name and play", SwingConstants.CENTER);
+		label.setBounds(90, 200, playButtonWidth, 50);
+		label.setFont(new Font("Serif", Font.PLAIN, 20));
+		label.setForeground(Color.YELLOW);
+		contentPane.add(label);
+		nameField = new JTextField();
+		nameField.setBounds(90, 250, playButtonWidth, 50);
+		contentPane.add(nameField);
+		playButton.setIcon(playButtonIcon);
+		playButton.setBounds(90, 300, playButtonWidth, playButtonHeight);
+		playButton.addActionListener(this);
+		contentPane.add(playButton);
+		scoresBoard = new JLabel("<html>Tetris game<br/>Player :" + playerName + "<br/>" + "Scores: "
+		+ Board.totalScore +"</html>");
+		scoresBoard.setBounds(400, 20, 200, 100);
+		scoresBoard.setFont(new Font("Serif", Font.PLAIN, 20));
+		scoresBoard.setForeground(Color.YELLOW);
+		contentPane.add(scoresBoard);
+//		Font serif = new Font("Serif", Font.BOLD, 40);
+//		g2d.setFont(serif);
+//		g2d.drawString("Tetris game", 30, 40);
+//		g2d.drawString("Score:" + Board.totalScore, 40, 80);
 		
 	}
+	
+	
+	public JLabel getScoresBoard() {
+		return scoresBoard;
+	}
+
+	public void setScoresBoard(JLabel scoresBoard) {
+		scoresBoard = new JLabel("<html>Tetris game<br/>Player :" + playerName + "<br/>" + "Scores: "
+				+ Board.totalScore +"</html>");
+		this.scoresBoard = scoresBoard;
+	}
+
 	// Call first by the browser
 	public void init() {
 
@@ -179,7 +231,6 @@ public class Board extends JPanel {
 			}
 		}
 		currShape = new Shape(rand.nextInt(Shape.shapes.length));
-
 	}
 
 	public void printBoard() {
@@ -202,12 +253,12 @@ public class Board extends JPanel {
 	public void stop() {
 		System.out.println("Game over!");
 		// System.exit(1);
-		running = false;
+		contentPane.add(playButton);
+		Board.running = false;
 	}
 
 	public void destroy() {
-		running = false;
-
+		Board.running = false;
 	}
 
 	@Override
@@ -222,10 +273,10 @@ public class Board extends JPanel {
 		// int B= (int)(Math.random( )*256);
 		// Color randomColor = new Color(R, G, B);
 		// g2d.setColor(randomColor);
-		Font serif = new Font("Serif", Font.BOLD, 40);
-		g2d.setFont(serif);
-		g2d.drawString("Tetris game", 30, 40);
-		g2d.drawString("Score:" + Board.totalScore, 40, 80);
+//		Font serif = new Font("Serif", Font.BOLD, 40);
+//		g2d.setFont(serif);
+//		g2d.drawString("Tetris game", 30, 40);
+//		g2d.drawString("Score:" + Board.totalScore, 40, 80);
 
 		for (int[] coor : currShape.coordinate) {
 			g2d.fillRoundRect(pixelWidth * coor[0], pixelHeight * coor[1], Board.pixelWidth - 5, Board.pixelHeight - 5,
@@ -437,5 +488,8 @@ public class Board extends JPanel {
 		// reresh rate [100, 200]
 		Board.speed = speed;
 	}
+
+	
+	
 
 }

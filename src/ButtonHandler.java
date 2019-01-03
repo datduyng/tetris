@@ -13,6 +13,7 @@ public class ButtonHandler implements ActionListener {
 		JRootPane rootPane		= clickedButton.getRootPane();
 		Frame frame				= (JFrame) rootPane.getParent();
 		Board.play = true;
+		Board.running = true;
 	}
 
 }
