@@ -1,8 +1,8 @@
 import javax.swing.*;
+import java.awt.event.*;
 import java.awt.*;
 
-public class Sample extends JFrame {
-
+public class Sample extends JFrame implements ActionListener{
 	private static final int FRAME_WIDTH	= 300;
 	private static final int FRAME_HEIGHT	= 200;
 	private static final int FRAME_X_ORIGIN	= 150;
@@ -10,36 +10,35 @@ public class Sample extends JFrame {
 
 	private static final int BUTTON_WIDTH	= 80;
 	private static final int BUTTON_HEIGHT	= 30;
-	
-	private JButton newButton;
-	private JButton oldButton;
-	
+
+	private JTextField textField;
+
 	public static void main(String[] args) {
 		Sample frame = new Sample();
-		frame.setVisible(true);
+		frame.setVisible(true);	
 	}
 
-	public Sample () {
-
-		Container contentPane = getContentPane();
-		
-		setTitle("Program Ch14JButtonFrame");
+	public Sample(){
 		setSize (FRAME_WIDTH, FRAME_HEIGHT);
-		//setResizable (false);
+		setResizable (true);
+		setTitle ("Program JTextFieldTest");
 		setLocation (FRAME_X_ORIGIN, FRAME_Y_ORIGIN);
 
+		Container contentPane = getContentPane();
 		contentPane.setLayout(null);
-		
-		newButton = new JButton("New");
-		newButton.setBounds(50,50,BUTTON_WIDTH,BUTTON_HEIGHT);
-		newButton.addActionListener(new ButtonHandler());
-		contentPane.add(newButton);
-		
-		oldButton = new JButton("Old");
-		oldButton.setBounds(150,50,BUTTON_WIDTH,BUTTON_HEIGHT);
-		contentPane.add(oldButton);
-		
-		setDefaultCloseOperation (EXIT_ON_CLOSE);
+
+		textField = new JTextField();
+		textField.setBounds(30, 70, 130, 90);
+
+		contentPane.add(textField);
+		textField.addActionListener(this);
+				
+		setDefaultCloseOperation( EXIT_ON_CLOSE);
 	}
-	
+
+	public void actionPerformed(ActionEvent event){
+		if(event.getSource() instanceof JTextField){
+			setTitle("Content of JTextField = " + textField.getText());
+		}
+	}
 }
