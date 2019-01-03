@@ -1,10 +1,14 @@
+import java.awt.Color;
 import java.util.ArrayList;
 
 public class Shape {
 	int id;
 	int dx, dy;
+	Color color;
 	ArrayList<int[]> coordinate = new ArrayList<int[]>(); // 0: x. 1: y 2: COM
 	boolean generated = false;
+	
+	static Color[] colors = new Color[] {Color.YELLOW, Color.RED, Color.BLUE, Color.MAGENTA, Color.CYAN, Color.GREEN, Color.GRAY};
 	final static int[][][] shapes =  {
 				  { { 0, 1 }, 
 			        { 0, 1 },
@@ -21,6 +25,11 @@ public class Shape {
 					{ 1, 2 },
 					{ 0, 1 } },
 			      
+			      
+			      { { 0, 1 }, 
+					{ 2, 1 },
+					{ 1, 0 } },
+			      
 			      { { 0, 1, 0 }, 
 				    { 1, 2, 1 } },
 					
@@ -34,9 +43,10 @@ public class Shape {
 	// ArrayList<int[][]> shapes = new ArrayList<int[][]>();
 
 	public Shape(int id) {
-		this.id = 3;// change to id
+		this.id = id;// change to id
 		this.dx = 0;
 		this.dy = 1;
+		this.color = colors[this.id];
 		genShapeCoor(this.id);
 	}
 
@@ -56,7 +66,7 @@ public class Shape {
 
 		} // end y
 		for (int [] c : coordinate) {
-			if (Board.M[c[1]][c[0]] == 1) {
+			if (Board.M[c[1]][c[0]] != Color.BLACK) {
 				generated = false;
 				return generated;
 			}
@@ -107,7 +117,7 @@ public class Shape {
 			coor[0] = (int) (shiftedx*Math.round(Math.cos(Math.toRadians(90.0))) - shiftedy*Math.round(Math.sin(Math.toRadians(90.0)))) + COMx;
 			coor[1] = (int) (shiftedx*Math.round(Math.sin(Math.toRadians(90.0))) - shiftedy*Math.round(Math.cos(Math.toRadians(90.0)))) + COMy;
 			// Check if obj is out of bound after rotation
-			if (coor[0] >= Board.numW || coor[0] < 0 || coor[1] >= Board.numH-1 || Board.M[coor[1]][coor[0]] == 1) {
+			if (coor[0] >= Board.numW || coor[0] < 0 || coor[1] >= Board.numH-1 || Board.M[coor[1]][coor[0]] != Color.BLACK) {
 				this.coordinate.clear();
 				this.coordinate = deepcopy(original);
 				return false;
@@ -116,13 +126,4 @@ public class Shape {
 		}// end for
 		return true;
 	}// end rotate
-
-	public String coordinateToStr() {
-		String result = "{";
-		for(int [] coor : this.coordinate) {
-			
-		}
-		return result; 
-		
-	}
 }
