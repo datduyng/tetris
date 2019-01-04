@@ -2,7 +2,6 @@ import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -10,6 +9,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Random;
 
 import javax.swing.ImageIcon;
@@ -17,7 +19,6 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JRootPane;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
@@ -65,7 +66,7 @@ public class Board extends JPanel implements ActionListener {
 	private JLabel label;
 	static private JLabel scoresBoard;
 	static JFrame f;
-	static String playerName = " Anonymous";
+	static String playerName;
 
 	public static void main(String args[]) {
 		f = new JFrame("Tetris");
@@ -149,12 +150,11 @@ public class Board extends JPanel implements ActionListener {
 						System.out.println("Interupt ERROR");
 					}
 				}
+				String data = Board.playerName + "," + Board.totalScore + "\n";
+				String filePath = "./data/score_board.dat";
+				appendUsingFileWriter(filePath, data);
 			}
 		};
-
-		/*
-		 * Start running the application
-		 */
 
 		t.start();
 
@@ -164,11 +164,11 @@ public class Board extends JPanel implements ActionListener {
 		if (event.getSource() instanceof JTextField) {
 
 		}
-
-		JButton clickedButton = (JButton) event.getSource();
-		JRootPane rootPane = clickedButton.getRootPane();
-		Frame frame = (JFrame) rootPane.getParent();
-		playerName = nameField.getText();
+		if (nameField.getText().isEmpty()) {
+			playerName = "Anonymous";
+		} else {
+			playerName = nameField.getText();
+		}
 		f.setTitle("Player : " + nameField.getText());
 		play = true;
 		running = true;
@@ -197,21 +197,7 @@ public class Board extends JPanel implements ActionListener {
 		scoresBoard.setFont(new Font("Serif", Font.PLAIN, 20));
 		scoresBoard.setForeground(Color.YELLOW);
 		contentPane.add(scoresBoard);
-		// Font serif = new Font("Serif", Font.BOLD, 40);
-		// g2d.setFont(serif);
-		// g2d.drawString("Tetris game", 30, 40);
-		// g2d.drawString("Score:" + Board.totalScore, 40, 80);
 
-	}
-
-	public JLabel getScoresBoard() {
-		return scoresBoard;
-	}
-
-	public void setScoresBoard(JLabel scoresBoard) {
-		scoresBoard = new JLabel(
-				"<html>Tetris game<br/>Player :" + playerName + "<br/>" + "Scores: " + Board.totalScore + "</html>");
-		this.scoresBoard = scoresBoard;
 	}
 
 	// Call first by the browser
@@ -488,4 +474,22 @@ public class Board extends JPanel implements ActionListener {
 		Board.speed = speed;
 	}
 
+	private static void appendUsingFileWriter(String filePath, String text) {
+		File file = new File(filePath);
+		FileWriter fr = null;
+		try {
+			// Below constructor argument decides whether to append or override
+			fr = new FileWriter(file, true);
+			fr.write(text);
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				fr.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
 }
