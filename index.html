@@ -1,10 +1,30 @@
 <html>
-	<head>
-		<title>Tetris</title>
-	</head>
-	
+<head>
+<title>Tetris</title>
+</head>
+<body bgcolor=green>
 		<h1>Tetris Game</h1>
-		<p></p>
-		<applet code="bin/Board.class"  height=800 width=600></applet>
+		<!-- Exlusively for HTML 4 (Firefox, Safari) and below -->
+		<!--p>
+			<applet 
+			 code="Board.class" 
+			 codebase='.'
+			 archive="Tetris.jar" 
+			 height=800 
+			 width=600> 
+			</applet>
+		</p-->
+		
+		<!-- HTML5 (Chrome, Edge,..) -->
+		<p>
+			<object 
+		     name="Game simluation"
+			 type="application/java"
+			 data="Tetris.jar" 
+			 width="600"
+			 height="800">
+			</object>
+		</p>
 	
-</html>
+</body>
+</html>	
