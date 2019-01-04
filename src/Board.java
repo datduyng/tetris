@@ -49,7 +49,7 @@ public class Board extends JPanel implements ActionListener {
 	static int totalScore = 0;
 	static int speed = 150;
 	static Color M[][] = new Color[numH][numW];
-	
+
 	static boolean falling;
 	static int loopCounter = 0;
 	static boolean play = false;
@@ -63,15 +63,14 @@ public class Board extends JPanel implements ActionListener {
 	static Container contentPane;
 	private JTextField nameField;
 	private JLabel label;
-	private JLabel scoresBoard;
+	static private JLabel scoresBoard;
 	static JFrame f;
-	static String playerName = "";
-	
+	static String playerName = " Anonymous";
+
 	public static void main(String args[]) {
 		f = new JFrame("Tetris");
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
-		
+
 		contentPane = f.getContentPane();
 		f.setBackground(Color.BLACK);
 		Board b = new Board();
@@ -126,55 +125,55 @@ public class Board extends JPanel implements ActionListener {
 			public void keyTyped(KeyEvent arg0) {
 			}
 		});
-		while(!play) {
-			// Halt
-			System.out.println(play);
-		}
-		if (play) {
-			contentPane.remove(b.playButton);
-			contentPane.remove(b.nameField);
-			contentPane.remove(b.label);
-			t = new Thread() {
-				@Override
-				public void run() {
-					while (running) {
-						try {
-							if (!b.pause)
-								b.update(true, true);
-							f.repaint();
-							Thread.sleep(speed);
-						} catch (InterruptedException e) {
-							System.out.println("Interupt ERROR");
-						}
+
+		t = new Thread() {
+
+			@Override
+			public void run() {
+				while (!play) {
+					// Halt
+					System.out.println(play);
+				}
+				if (play) {
+					contentPane.remove(b.playButton);
+					contentPane.remove(b.nameField);
+					contentPane.remove(b.label);
+				}
+				while (running) {
+					try {
+						if (!b.pause)
+							b.update(true, true);
+						f.repaint();
+						Thread.sleep(speed);
+					} catch (InterruptedException e) {
+						System.out.println("Interupt ERROR");
 					}
 				}
-			};
+			}
+		};
 
 		/*
 		 * Start running the application
 		 */
-		
-			t.start();
-		}
+
+		t.start();
 
 	}
-	
+
 	public void actionPerformed(ActionEvent event) {
-		if(event.getSource() instanceof JTextField){
-			
-			
+		if (event.getSource() instanceof JTextField) {
+
 		}
 
-		JButton clickedButton 	= (JButton) event.getSource();
-		JRootPane rootPane		= clickedButton.getRootPane();
-		Frame frame				= (JFrame) rootPane.getParent();
+		JButton clickedButton = (JButton) event.getSource();
+		JRootPane rootPane = clickedButton.getRootPane();
+		Frame frame = (JFrame) rootPane.getParent();
 		playerName = nameField.getText();
 		f.setTitle("Player : " + nameField.getText());
 		play = true;
 		running = true;
 	}
-	
-	
+
 	public Board() {
 		init();
 		setPreferredSize(new Dimension(WIDTH, HEIGHT));
@@ -192,27 +191,26 @@ public class Board extends JPanel implements ActionListener {
 		playButton.setBounds(90, 300, playButtonWidth, playButtonHeight);
 		playButton.addActionListener(this);
 		contentPane.add(playButton);
-		scoresBoard = new JLabel("<html>Tetris game<br/>Player :" + playerName + "<br/>" + "Scores: "
-		+ Board.totalScore +"</html>");
+		scoresBoard = new JLabel(
+				"<html>Tetris game<br/>Player :" + playerName + "<br/>" + "Scores: " + Board.totalScore + "</html>");
 		scoresBoard.setBounds(400, 20, 200, 100);
 		scoresBoard.setFont(new Font("Serif", Font.PLAIN, 20));
 		scoresBoard.setForeground(Color.YELLOW);
 		contentPane.add(scoresBoard);
-//		Font serif = new Font("Serif", Font.BOLD, 40);
-//		g2d.setFont(serif);
-//		g2d.drawString("Tetris game", 30, 40);
-//		g2d.drawString("Score:" + Board.totalScore, 40, 80);
-		
+		// Font serif = new Font("Serif", Font.BOLD, 40);
+		// g2d.setFont(serif);
+		// g2d.drawString("Tetris game", 30, 40);
+		// g2d.drawString("Score:" + Board.totalScore, 40, 80);
+
 	}
-	
-	
+
 	public JLabel getScoresBoard() {
 		return scoresBoard;
 	}
 
 	public void setScoresBoard(JLabel scoresBoard) {
-		scoresBoard = new JLabel("<html>Tetris game<br/>Player :" + playerName + "<br/>" + "Scores: "
-				+ Board.totalScore +"</html>");
+		scoresBoard = new JLabel(
+				"<html>Tetris game<br/>Player :" + playerName + "<br/>" + "Scores: " + Board.totalScore + "</html>");
 		this.scoresBoard = scoresBoard;
 	}
 
@@ -255,6 +253,12 @@ public class Board extends JPanel implements ActionListener {
 		Board.running = false;
 	}
 
+	public void clearBoard() {
+		for (int i = 0; i < numH; i++) {
+			clearRow(i);
+		}
+	}
+
 	@Override
 	public void paint(Graphics g) {
 		Graphics2D g2d = (Graphics2D) g;
@@ -267,11 +271,12 @@ public class Board extends JPanel implements ActionListener {
 		// int B= (int)(Math.random( )*256);
 		// Color randomColor = new Color(R, G, B);
 		// g2d.setColor(randomColor);
-//		Font serif = new Font("Serif", Font.BOLD, 40);
-//		g2d.setFont(serif);
-//		g2d.drawString("Tetris game", 30, 40);
-//		g2d.drawString("Score:" + Board.totalScore, 40, 80);
-
+		// Font serif = new Font("Serif", Font.BOLD, 40);
+		// g2d.setFont(serif);
+		// g2d.drawString("Tetris game", 30, 40);
+		// g2d.drawString("Score:" + Board.totalScore, 40, 80);
+		scoresBoard.setText(
+				"<html>Tetris game<br/>Player :" + playerName + "<br/>" + "Scores: " + Board.totalScore + "</html>");
 		for (int[] coor : currShape.coordinate) {
 			g2d.fillRoundRect(pixelWidth * coor[0], pixelHeight * coor[1], Board.pixelWidth - 5, Board.pixelHeight - 5,
 					15, 15);
@@ -482,8 +487,5 @@ public class Board extends JPanel implements ActionListener {
 		// reresh rate [100, 200]
 		Board.speed = speed;
 	}
-
-	
-	
 
 }
