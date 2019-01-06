@@ -3,6 +3,7 @@ import java.util.ArrayList;
 
 public class Shape {
 	int id;
+	int rotateid;
 	int dx, dy;
 	Color color;
 	ArrayList<int[]> coordinate = new ArrayList<int[]>(); // 0: x. 1: y 2: COM
@@ -86,7 +87,8 @@ public class Shape {
 	// ArrayList<int[][]> shapes = new ArrayList<int[][]>();
 
 	public Shape(int id) {
-		this.id = id;// change to id
+		this.id = 2;// change to id
+		this.rotateid = 0;
 		this.dx = 0;
 		this.dy = 1;
 		this.color = colors[this.id];

@@ -198,11 +198,6 @@ public class Board extends JPanel implements ActionListener {
 		scoresBoard.setFont(new Font("Serif", Font.PLAIN, 20));
 		scoresBoard.setForeground(Color.YELLOW);
 		contentPane.add(scoresBoard);
-//		Font serif = new Font("Serif", Font.BOLD, 40);
-//		g2d.setFont(serif);
-//		g2d.drawString("Tetris game", 30, 40);
-//		g2d.drawString("Score:" + Board.totalScore, 40, 80);
-		
 	}
 	
 	
@@ -259,19 +254,6 @@ public class Board extends JPanel implements ActionListener {
 	public void paint(Graphics g) {
 		Graphics2D g2d = (Graphics2D) g;
 		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-		// this.setSize(WIDTH, HEIGHT);
-
-		// int R = (int) (Math.random( )*256);
-		// int G = (int)(Math.random( )*256);
-		// int B= (int)(Math.random( )*256);
-		// Color randomColor = new Color(R, G, B);
-		// g2d.setColor(randomColor);
-//		Font serif = new Font("Serif", Font.BOLD, 40);
-//		g2d.setFont(serif);
-//		g2d.drawString("Tetris game", 30, 40);
-//		g2d.drawString("Score:" + Board.totalScore, 40, 80);
-
 		for (int[] coor : currShape.coordinate) {
 			g2d.fillRoundRect(pixelWidth * coor[0], pixelHeight * coor[1], Board.pixelWidth - 5, Board.pixelHeight - 5,
 					15, 15);
@@ -292,11 +274,6 @@ public class Board extends JPanel implements ActionListener {
 		}
 		// }
 	}
-
-	// @Override
-	// public void paintComponents(Graphics g) {
-	// super.paintComponents(g);
-	// }
 
 	public void genShape() {
 		// delete old/free old
@@ -377,7 +354,7 @@ public class Board extends JPanel implements ActionListener {
 				coor[1] += currShape.dy;
 			if (Board.M[coor[1]][coor[0] + currShape.dx] != Color.BLACK)
 				currShape.dx = 0;
-			if (left_right && !shapeHandler(coor)) {
+			if (left_right) {
 				// System.out.println("Update dx:"+currShape.dx);
 				coor[0] += currShape.dx;
 			}
