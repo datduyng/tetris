@@ -10,4 +10,4 @@ Why implementing Tetris?
 
 
 ## Game play 
-![Test Image 4](https://github.com/datduyng/tetris-world/tree/master/img/game-play-test-1.PNG)
+![Test Image](https://github.com/datduyng/tetris-world/blob/master/img/game-play-test-1.PNG)
