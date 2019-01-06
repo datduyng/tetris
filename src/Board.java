@@ -2,23 +2,31 @@ import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Random;
+import java.util.Scanner;
 
+import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
-import javax.swing.JRootPane;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 
 /**
@@ -49,7 +57,7 @@ public class Board extends JPanel implements ActionListener {
 	static int totalScore = 0;
 	static int speed = 150;
 	static Color M[][] = new Color[numH][numW];
-	
+
 	static boolean falling;
 	static int loopCounter = 0;
 	static boolean play = false;
@@ -63,15 +71,14 @@ public class Board extends JPanel implements ActionListener {
 	static Container contentPane;
 	private JTextField nameField;
 	private JLabel label;
-	private JLabel scoresBoard;
+	static private JLabel scoresBoard;
 	static JFrame f;
-	static String playerName = "";
-	
+	static String playerName;
+
 	public static void main(String args[]) {
 		f = new JFrame("Tetris");
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
-		
+
 		contentPane = f.getContentPane();
 		f.setBackground(Color.BLACK);
 		Board b = new Board();
@@ -126,55 +133,55 @@ public class Board extends JPanel implements ActionListener {
 			public void keyTyped(KeyEvent arg0) {
 			}
 		});
-		while(!play) {
-			// Halt
-			System.out.println(play);
-		}
-		if (play) {
-			contentPane.remove(b.playButton);
-			contentPane.remove(b.nameField);
-			contentPane.remove(b.label);
-			t = new Thread() {
-				@Override
-				public void run() {
-					while (running) {
-						try {
-							if (!b.pause)
-								b.update(true, true);
-							f.repaint();
-							Thread.sleep(speed);
-						} catch (InterruptedException e) {
-							System.out.println("Interupt ERROR");
-						}
+
+		t = new Thread() {
+
+			@Override
+			public void run() {
+				while (!play) {
+					// Halt
+					System.out.println(play);
+				}
+				if (play) {
+					contentPane.remove(b.playButton);
+					contentPane.remove(b.nameField);
+					contentPane.remove(b.label);
+				}
+				while (running) {
+					try {
+						if (!b.pause)
+							b.update(true, true);
+						f.repaint();
+						Thread.sleep(speed);
+					} catch (InterruptedException e) {
+						System.out.println("Interupt ERROR");
 					}
 				}
-			};
+				String data = Board.playerName + "," + Board.totalScore + "\n";
+				String filePath = "./data/score_board.dat";
+				appendUsingFileWriter(filePath, data);
+				displayLeaderBoard(filePath);
+			}
+		};
 
-		/*
-		 * Start running the application
-		 */
-		
-			t.start();
-		}
+		t.start();
 
 	}
-	
-	public void actionPerformed(ActionEvent event) {
-		if(event.getSource() instanceof JTextField){
-			
-			
-		}
 
-		JButton clickedButton 	= (JButton) event.getSource();
-		JRootPane rootPane		= clickedButton.getRootPane();
-		Frame frame				= (JFrame) rootPane.getParent();
-		playerName = nameField.getText();
+	public void actionPerformed(ActionEvent event) {
+		if (event.getSource() instanceof JTextField) {
+
+		}
+		if (nameField.getText().isEmpty()) {
+			playerName = "Anonymous";
+		} else {
+			playerName = nameField.getText();
+		}
 		f.setTitle("Player : " + nameField.getText());
 		play = true;
 		running = true;
 	}
-	
-	
+
 	public Board() {
 		init();
 		setPreferredSize(new Dimension(WIDTH, HEIGHT));
@@ -192,28 +199,13 @@ public class Board extends JPanel implements ActionListener {
 		playButton.setBounds(90, 300, playButtonWidth, playButtonHeight);
 		playButton.addActionListener(this);
 		contentPane.add(playButton);
-		scoresBoard = new JLabel("<html>Tetris game<br/>Player :" + playerName + "<br/>" + "Scores: "
-		+ Board.totalScore +"</html>");
+		scoresBoard = new JLabel(
+				"<html>Tetris game<br/>Player :" + playerName + "<br/>" + "Scores: " + Board.totalScore + "</html>");
 		scoresBoard.setBounds(400, 20, 200, 100);
 		scoresBoard.setFont(new Font("Serif", Font.PLAIN, 20));
 		scoresBoard.setForeground(Color.YELLOW);
 		contentPane.add(scoresBoard);
-//		Font serif = new Font("Serif", Font.BOLD, 40);
-//		g2d.setFont(serif);
-//		g2d.drawString("Tetris game", 30, 40);
-//		g2d.drawString("Score:" + Board.totalScore, 40, 80);
-		
-	}
-	
-	
-	public JLabel getScoresBoard() {
-		return scoresBoard;
-	}
 
-	public void setScoresBoard(JLabel scoresBoard) {
-		scoresBoard = new JLabel("<html>Tetris game<br/>Player :" + playerName + "<br/>" + "Scores: "
-				+ Board.totalScore +"</html>");
-		this.scoresBoard = scoresBoard;
 	}
 
 	// Call first by the browser
@@ -255,6 +247,12 @@ public class Board extends JPanel implements ActionListener {
 		Board.running = false;
 	}
 
+	public void clearBoard() {
+		for (int i = 0; i < numH; i++) {
+			clearRow(i);
+		}
+	}
+
 	@Override
 	public void paint(Graphics g) {
 		Graphics2D g2d = (Graphics2D) g;
@@ -267,11 +265,12 @@ public class Board extends JPanel implements ActionListener {
 		// int B= (int)(Math.random( )*256);
 		// Color randomColor = new Color(R, G, B);
 		// g2d.setColor(randomColor);
-//		Font serif = new Font("Serif", Font.BOLD, 40);
-//		g2d.setFont(serif);
-//		g2d.drawString("Tetris game", 30, 40);
-//		g2d.drawString("Score:" + Board.totalScore, 40, 80);
-
+		// Font serif = new Font("Serif", Font.BOLD, 40);
+		// g2d.setFont(serif);
+		// g2d.drawString("Tetris game", 30, 40);
+		// g2d.drawString("Score:" + Board.totalScore, 40, 80);
+		scoresBoard.setText(
+				"<html>Tetris game<br/>Player :" + playerName + "<br/>" + "Scores: " + Board.totalScore + "</html>");
 		for (int[] coor : currShape.coordinate) {
 			g2d.fillRoundRect(pixelWidth * coor[0], pixelHeight * coor[1], Board.pixelWidth - 5, Board.pixelHeight - 5,
 					15, 15);
@@ -483,7 +482,78 @@ public class Board extends JPanel implements ActionListener {
 		Board.speed = speed;
 	}
 
+	private static void appendUsingFileWriter(String filePath, String text) {
+		File file = new File(filePath);
+		FileWriter fr = null;
+		try {
+			// Below constructor argument decides whether to append or override
+			fr = new FileWriter(file, true);
+			fr.write(text);
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				fr.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
 	
-	
+	public static void displayLeaderBoard(String filePath) {
+		DefaultListModel<String> leaderBoard = new DefaultListModel<>();
+		File file = new File(filePath);
+		try {
+			Scanner s = new Scanner(file);
+			while(s.hasNextLine()) {
+				String raw = s.nextLine();
+				String data [] = raw.split(",");
+				String line = data[0] + "\t\t" + data[1];
+				leaderBoard.addElement(line);
+			}
+			s.close();
+		} catch (Exception e) {
+			System.out.println("Error error...");
+		}
+		JList<String> list = new JList<String>(leaderBoard);
+		list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		list.setLayoutOrientation(JList.VERTICAL_WRAP);
+		list.addComponentListener(new ComponentAdapter() {
+			@Override
+			public void componentResized(ComponentEvent e) {
+				fixRowCountForVisibleColumns(list);
+			}
+		});
+		JScrollPane scrollableList = new JScrollPane(list);
+		scrollableList.setBounds(400, 25, 250, 425);
+		scrollableList.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		scrollableList.setPreferredSize(new Dimension(230, 410));
+		contentPane.add(scrollableList);
+
+//		contentPane.setBackground(Color.white);
+	}
+	private static void fixRowCountForVisibleColumns(JList<String> list) {
+		int nCols = computeVisibleColumnCount(list);
+		int nItems = list.getModel().getSize();
+
+		// Compute the number of rows that will result in the desired number of
+		// columns
+		if (nCols > 0) {
+			int nRows = nItems / nCols;
+			if (nItems % nCols > 0)
+				nRows++;
+			list.setVisibleRowCount(nRows);
+		}
+	}
+
+	private static int computeVisibleColumnCount(JList<String> list) {
+		// It's assumed here that all cells have the same width. This method
+		// could be modified if this assumption is false. If there was cell
+		// padding, it would have to be accounted for here as well.
+		int cellWidth = list.getCellBounds(0, 0).width;
+		int width = list.getVisibleRect().width;
+		return width / cellWidth;
+	}
 
 }
