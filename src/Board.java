@@ -12,10 +12,17 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
@@ -167,10 +174,12 @@ public class Board extends JPanel implements ActionListener {
 		t.start();
 
 	}
-	
+
 	/*
 	 * Functions for button handlers
-	 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+	 * 
+	 * @see
+	 * java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
 	 */
 
 	public void actionPerformed(ActionEvent event) {
@@ -214,8 +223,7 @@ public class Board extends JPanel implements ActionListener {
 		scoresBoard.setForeground(Color.YELLOW);
 		contentPane.add(scoresBoard);
 	}
-	
-	
+
 	public JLabel getScoresBoard() {
 		return scoresBoard;
 	}
@@ -254,7 +262,7 @@ public class Board extends JPanel implements ActionListener {
 	public void stop() {
 		System.out.println("Game over!");
 		// System.exit(1);
-//		contentPane.add(playButton);
+		// contentPane.add(playButton);
 		Board.running = false;
 	}
 
@@ -276,7 +284,7 @@ public class Board extends JPanel implements ActionListener {
 			g2d.fillRoundRect(pixelWidth * coor[0], pixelHeight * coor[1], Board.pixelWidth - 5, Board.pixelHeight - 5,
 					15, 15);
 		}
-		
+
 		for (int x = 0; x < Board.numW; x++) {
 			for (int y = 0; y < Board.numH; y++) {
 				// make color random in here
@@ -298,7 +306,7 @@ public class Board extends JPanel implements ActionListener {
 		if (!currShape.generated)
 			this.stop();
 	}
-	
+
 	public void update(boolean left_right, boolean down) {
 
 		// delete old coor before moving
@@ -464,7 +472,8 @@ public class Board extends JPanel implements ActionListener {
 		}
 		Board.totalScore += Math.max((runningCombo - 1), 0) * 600;
 		// update scores if scores increment
-		scoresBoard.setText("<html>Tetris game<br/>Player :" + playerName + "<br/>" + "Scores: " + Board.totalScore + "</html>");
+		scoresBoard.setText(
+				"<html>Tetris game<br/>Player :" + playerName + "<br/>" + "Scores: " + Board.totalScore + "</html>");
 		runningCombo = 0;
 		repaint();
 	}
@@ -496,25 +505,37 @@ public class Board extends JPanel implements ActionListener {
 			}
 		}
 	}
-	
+
 	/**
 	 * This method display overall old game stat given a file name
+	 * 
 	 * @param filePath
 	 */
 	public static void displayLeaderBoard(String filePath) {
 		DefaultListModel<String> leaderBoard = new DefaultListModel<>();
+		HashMap<String, Integer> rawData = new HashMap<String, Integer>();
 		File file = new File(filePath);
 		try {
 			Scanner s = new Scanner(file);
-			while(s.hasNextLine()) {
+			while (s.hasNextLine()) {
 				String raw = s.nextLine();
-				String data [] = raw.split(",");
-				String line = String.format("<html> <font size=\"10\">%s : %s </font> </br> </html>", data[0], data[1]);
-				leaderBoard.addElement(line);
+				String data[] = raw.split(",");
+				rawData.put(data[0], Integer.parseInt(data[1]));
 			}
 			s.close();
-		} catch (Exception e) {
+		} catch (FileNotFoundException e) {
 			System.out.println("Error error...");
+		}
+		// We sort map by value using java.util.stream
+		Map<String, Integer> sortedData = rawData.entrySet().stream().sorted(Entry.comparingByValue(Comparator.reverseOrder()))
+				.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+
+		int pos = 1;
+		for (Map.Entry<String, Integer> m : sortedData.entrySet()) {
+			String line = String.format("<html> <font size=\"10\">%d. %s : %s </font> </br> </html>",pos, m.getKey(),
+					m.getValue());
+			leaderBoard.addElement(line);
+			pos += 1;
 		}
 		JList<String> list = new JList<String>(leaderBoard);
 		list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -531,12 +552,12 @@ public class Board extends JPanel implements ActionListener {
 		scrollableList.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		scrollableList.setPreferredSize(new Dimension(230, 410));
 		contentPane.add(scrollableList);
-		
+
 		f.setVisible(true);
-		f.setUndecorated(true);// set background to betransparent. So the leader board is clear. 
-		
+		f.setUndecorated(true);// set background to betransparent. So the leader board is clear.
 
 	}
+
 	private static void fixRowCountForVisibleColumns(JList<String> list) {
 		int nCols = computeVisibleColumnCount(list);
 		int nItems = list.getModel().getSize();
@@ -561,3 +582,4 @@ public class Board extends JPanel implements ActionListener {
 	}
 
 }
+
