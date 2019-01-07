@@ -11,7 +11,7 @@ Why implementing Tetris?
 
 
 ## Game play 
-> <img src="https://github.com/datduyng/tetris-world/blob/master/img/game-play-test-1.PNG" alt="Game Play" height="400" width="300">
+> <img src="https://github.com/datduyng/tetris-world/blob/master/img/game-play-test-1.PNG" alt="Game Play" height="400" width="300" align="middle">
 
 
 ###### Implementation designed by: Huy Vuong and Dat Nguyen
