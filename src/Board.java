@@ -39,9 +39,6 @@ import javax.swing.SwingConstants;
 // for keyboard input
 public class Board extends JPanel implements ActionListener {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 	static boolean running = false;
 	boolean pause = false;
@@ -75,6 +72,9 @@ public class Board extends JPanel implements ActionListener {
 	static JFrame f;
 	static String playerName;
 
+	/*
+	 * A main driver that starts a thread and execute GUI app
+	 */
 	public static void main(String args[]) {
 		f = new JFrame("Tetris");
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -167,6 +167,11 @@ public class Board extends JPanel implements ActionListener {
 		t.start();
 
 	}
+	
+	/*
+	 * Functions for button handlers
+	 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+	 */
 
 	public void actionPerformed(ActionEvent event) {
 		if (event.getSource() instanceof JTextField) {
@@ -182,6 +187,9 @@ public class Board extends JPanel implements ActionListener {
 		running = true;
 	}
 
+	/*
+	 * Default constructor for the game
+	 */
 	public Board() {
 		init();
 		setPreferredSize(new Dimension(WIDTH, HEIGHT));
@@ -219,6 +227,9 @@ public class Board extends JPanel implements ActionListener {
 		currShape = new Shape(rand.nextInt(Shape.shapes.length));
 	}
 
+	/*
+	 * Debugging purpose function
+	 */
 	public void printBoard() {
 		for (int i = 0; i < numH; i++) {
 			for (int j = 0; j < numW; j++) {
@@ -239,7 +250,7 @@ public class Board extends JPanel implements ActionListener {
 	public void stop() {
 		System.out.println("Game over!");
 		// System.exit(1);
-		contentPane.add(playButton);
+//		contentPane.add(playButton);
 		Board.running = false;
 	}
 
@@ -258,25 +269,14 @@ public class Board extends JPanel implements ActionListener {
 		Graphics2D g2d = (Graphics2D) g;
 		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-		// this.setSize(WIDTH, HEIGHT);
-
-		// int R = (int) (Math.random( )*256);
-		// int G = (int)(Math.random( )*256);
-		// int B= (int)(Math.random( )*256);
-		// Color randomColor = new Color(R, G, B);
-		// g2d.setColor(randomColor);
-		// Font serif = new Font("Serif", Font.BOLD, 40);
-		// g2d.setFont(serif);
-		// g2d.drawString("Tetris game", 30, 40);
-		// g2d.drawString("Score:" + Board.totalScore, 40, 80);
+		
 		scoresBoard.setText(
 				"<html>Tetris game<br/>Player :" + playerName + "<br/>" + "Scores: " + Board.totalScore + "</html>");
 		for (int[] coor : currShape.coordinate) {
 			g2d.fillRoundRect(pixelWidth * coor[0], pixelHeight * coor[1], Board.pixelWidth - 5, Board.pixelHeight - 5,
 					15, 15);
 		}
-		// if (!falling) {
-		// draw the whole board
+		
 		for (int x = 0; x < Board.numW; x++) {
 			for (int y = 0; y < Board.numH; y++) {
 				// make color random in here
@@ -289,13 +289,7 @@ public class Board extends JPanel implements ActionListener {
 						15);
 			}
 		}
-		// }
 	}
-
-	// @Override
-	// public void paintComponents(Graphics g) {
-	// super.paintComponents(g);
-	// }
 
 	public void genShape() {
 		// delete old/free old
@@ -304,7 +298,7 @@ public class Board extends JPanel implements ActionListener {
 		if (!currShape.generated)
 			this.stop();
 	}
-
+	
 	public void update(boolean left_right, boolean down) {
 
 		// delete old coor before moving
@@ -509,7 +503,7 @@ public class Board extends JPanel implements ActionListener {
 			while(s.hasNextLine()) {
 				String raw = s.nextLine();
 				String data [] = raw.split(",");
-				String line = data[0] + "\t\t" + data[1];
+				String line = String.format("<html> <font size=\"10\">%s : %s </font> </br> </html>", data[0], data[1]);
 				leaderBoard.addElement(line);
 			}
 			s.close();
@@ -526,7 +520,7 @@ public class Board extends JPanel implements ActionListener {
 			}
 		});
 		JScrollPane scrollableList = new JScrollPane(list);
-		scrollableList.setBounds(400, 25, 250, 425);
+		scrollableList.setBounds(100, 100, 250, 400);
 		scrollableList.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		scrollableList.setPreferredSize(new Dimension(230, 410));
 		contentPane.add(scrollableList);
