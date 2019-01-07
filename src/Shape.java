@@ -87,7 +87,7 @@ public class Shape {
 	// ArrayList<int[][]> shapes = new ArrayList<int[][]>();
 
 	public Shape(int id) {
-		this.id = 2;// change to id
+		this.id = id;// change to id
 		this.rotateid = 0;
 		this.dx = 0;
 		this.dy = 1;
