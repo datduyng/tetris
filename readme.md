@@ -7,7 +7,7 @@ Why implementing Tetris?
 - If one understand the bare bone of an classical game theory algorithm, he or she can manipulate and build upon the game
 
 # Getting start
-- Try it out yourself. Download the repo and run the `.jar` file
+- Try it out yourself. Download the repo and run the `Teris.jar` file
 
 
 ## Game play 
