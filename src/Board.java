@@ -52,7 +52,7 @@ public class Board extends JPanel implements ActionListener {
 	final static int playButtonWidth = 439;
 	final static int playButtonHeight = 173;
 	static int totalScore = 0;
-	static int speed = 150;
+	static int speed = 230;
 	static Color M[][] = new Color[numH][numW];
 
 	static boolean falling;
@@ -140,7 +140,7 @@ public class Board extends JPanel implements ActionListener {
 			public void run() {
 				while (!play) {
 					// Halt
-					System.out.println(play);
+					System.out.println("");
 				}
 				if (play) {
 					contentPane.remove(b.playButton);
@@ -463,6 +463,8 @@ public class Board extends JPanel implements ActionListener {
 			}
 		}
 		Board.totalScore += Math.max((runningCombo - 1), 0) * 600;
+		// update scores if scores increment
+		scoresBoard.setText("<html>Tetris game<br/>Player :" + playerName + "<br/>" + "Scores: " + Board.totalScore + "</html>");
 		runningCombo = 0;
 		repaint();
 	}
@@ -495,6 +497,10 @@ public class Board extends JPanel implements ActionListener {
 		}
 	}
 	
+	/**
+	 * This method display overall old game stat given a file name
+	 * @param filePath
+	 */
 	public static void displayLeaderBoard(String filePath) {
 		DefaultListModel<String> leaderBoard = new DefaultListModel<>();
 		File file = new File(filePath);
@@ -519,11 +525,16 @@ public class Board extends JPanel implements ActionListener {
 				fixRowCountForVisibleColumns(list);
 			}
 		});
+		System.out.println("");
 		JScrollPane scrollableList = new JScrollPane(list);
 		scrollableList.setBounds(100, 100, 250, 400);
 		scrollableList.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		scrollableList.setPreferredSize(new Dimension(230, 410));
 		contentPane.add(scrollableList);
+		
+		f.setVisible(true);
+		f.setUndecorated(true);// set background to betransparent. So the leader board is clear. 
+		
 
 	}
 	private static void fixRowCountForVisibleColumns(JList<String> list) {
